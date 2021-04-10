@@ -1,12 +1,17 @@
 import React from 'react';
-import { Button } from '@chakra-ui/react';
+import { Button, useToast } from '@chakra-ui/react';
 import { FcGoogle } from 'react-icons/fc';
 import { useGoogleLogin } from 'react-google-login';
+import CoveyTownUser from './User';
+import useCoveyAppState from '../../hooks/useCoveyAppState';
+
 
 const clientId =
   '147790869304-31si4r0ejgmklrphlis0eehdgk0qo9qo.apps.googleusercontent.com';
 
 function LoginHooks(): JSX.Element {
+  const { dbClient } = useCoveyAppState();
+  const toast = useToast();
 
   const refreshTokenSetup = (res: any) => {
     let refreshTiming = (res.tokenObj.expires_in || 3600 - 5 * 60) * 1000;
@@ -14,7 +19,6 @@ function LoginHooks(): JSX.Element {
     const refreshToken = async () => {
       const newAuthRes = await res.reloadAuthResponse();
       refreshTiming = (newAuthRes.expires_in || 3600 - 5 * 60) * 1000;
-      console.log('newAuthRes:', newAuthRes);
 
       localStorage.setItem('authToken', newAuthRes.id_token);
   
@@ -23,17 +27,40 @@ function LoginHooks(): JSX.Element {
   
     setTimeout(refreshToken, refreshTiming);
   };
+
+  async function checkUserExistsInDB(userInfo: any) {
+    const userExists = await dbClient.userExistence({ email: userInfo.email });
+
+    if (userExists) {
+      await dbClient.setOnlineStatus({ email: userInfo.email, isOnline: true });
+    } else {
+      await dbClient.addUser({ user: { firstName: userInfo.givenName, lastName: userInfo.familyName, email: userInfo.email, friends: [], isOnline: true }});
+    }
+  }
     
   const onSuccess = (res: any) => {
-    console.log('Login successful: currentUser:', res.profileObj);
+    // Save the user data in CoveyTownUser singleton
+    const userProfile = CoveyTownUser.getInstance();
+    userProfile.setUserEmail(res.profileObj.email);
+    userProfile.setUserName(res.profileObj.givenName);
+    userProfile.setUserStatus(true);
+
+    // Checking if user exists in database
+    checkUserExistsInDB(res.profileObj);
+
+    toast({
+      title: `Login Successful! Welcome to Covey.Town ${res.profileObj.givenName}`,
+      status: 'success',
+    })
+    
     refreshTokenSetup(res);
   };
 
   const onFailure = (res: any) => {
-    console.log('Login failed: res:', res);
-    alert(
-      `Failed to login.`
-    );
+    toast({
+      title: 'Google Login failed',
+      status: 'error',
+    });
   };
 
   const { signIn } =  useGoogleLogin({
