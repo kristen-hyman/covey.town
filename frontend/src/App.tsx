@@ -52,8 +52,8 @@ function defaultAppState(): CoveyAppState {
     },
     emitMovement: () => {
     },
-    apiClient: new TownsServiceClient('http://localhost:8082/'),
-    dbClient: new DatabaseServiceClient('http://localhost:8081/'),
+    apiClient: new TownsServiceClient(),
+    dbClient: new DatabaseServiceClient(),
   };
 }
 function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyAppState {
