@@ -10,12 +10,14 @@ export interface UserEmailRequest {
   lastName: string,
   email: string,
   friends: string [],
-  isOnline: boolean
+  isOnline: boolean,
+  location: string
 };
   
-export type UserStatus = {
+export type UserInfo = {
   email: string,
-  isOnline: boolean
+  isOnline: boolean,
+  location: string
 };
 
 /**
@@ -59,6 +61,11 @@ export interface ResponseEnvelope<T> {
     response?: T;
   }
 
+export interface UserLocationRequest {
+  email: string
+  location: string
+}
+
 
 export default class DatabaseServiceClient {
     private _axios: AxiosInstance;
@@ -92,11 +99,10 @@ export default class DatabaseServiceClient {
       return DatabaseServiceClient.unwrapOrThrowError(responseWrapper);
     }
   
-    async getFriends(requestData: UserEmailRequest): Promise<UserStatus[]> {
-        const responseWrapper = await this._axios.get<ResponseEnvelope<UserStatus[]>>(`/users/${requestData.email}/friends`);
+    async getFriends(requestData: UserEmailRequest): Promise<UserInfo[]> {
+        const responseWrapper = await this._axios.get<ResponseEnvelope<UserInfo[]>>(`/users/${requestData.email}/friends`);
         return DatabaseServiceClient.unwrapOrThrowError(responseWrapper);
     }
-
 
     async getOnlineStatus(requestData: UserEmailRequest): Promise<boolean> {
         const responseWrapper = await this._axios.get<ResponseEnvelope<boolean>>(`/users/${requestData.email}/status`);
@@ -121,6 +127,11 @@ export default class DatabaseServiceClient {
     async deleteFriend(requestData: RemoveFriendRequest): Promise<Record<string, null>> {
         const responseWrapper = await this._axios.delete<ResponseEnvelope<Record<string, null>>>(`/users/${requestData.email}/friends/${requestData.friendEmail}`);
         return DatabaseServiceClient.unwrapOrThrowError(responseWrapper, true);
-      }
+    }
+
+    async setUserLocation(requestData: UserLocationRequest): Promise<Record<string, null>> {
+      const responseWrapper = await this._axios.post<ResponseEnvelope<Record<string, null>>>(`/users/location/`,requestData);
+      return DatabaseServiceClient.unwrapOrThrowError(responseWrapper, true);
+    }
   }
   

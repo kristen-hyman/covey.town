@@ -33,8 +33,9 @@ function LoginHooks(): JSX.Element {
 
     if (userExists) {
       await dbClient.setOnlineStatus({ email: userInfo.email, isOnline: true });
+      await dbClient.setUserLocation({ email: userInfo.email, location: "Lobby" });
     } else {
-      await dbClient.addUser({ user: { firstName: userInfo.givenName, lastName: userInfo.familyName, email: userInfo.email, friends: [], isOnline: true }});
+      await dbClient.addUser({ user: { firstName: userInfo.givenName, lastName: userInfo.familyName, email: userInfo.email, friends: [], isOnline: true, location: "Lobby" }});
     }
   }
     
@@ -49,7 +50,8 @@ function LoginHooks(): JSX.Element {
     checkUserExistsInDB(res.profileObj);
 
     toast({
-      title: `Login Successful! Welcome to Covey.Town ${res.profileObj.givenName}`,
+      title: 'Login Successful!',
+      description: `Welcome to your account ${res.profileObj.givenName}`,
       status: 'success',
     })
     

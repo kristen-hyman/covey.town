@@ -3,13 +3,13 @@ import assert from "assert";
 import {
   Box,
   Button,
-  Center,
   Checkbox,
   Flex,
   FormControl,
   FormLabel,
   Heading,
   Icon,
+  IconButton,
   Input,
   Stack,
   Table,
@@ -21,7 +21,8 @@ import {
   Tr,
   useToast
 } from '@chakra-ui/react';
-import {UserStatus} from '../../classes/DatabaseServiceClient';
+import DeleteIcon from '@material-ui/icons/Delete';
+import { UserInfo } from '../../classes/DatabaseServiceClient';
 import LoginHooks from './LoginHooks'
 import LogoutHooks from './LogoutHooks'
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
@@ -43,22 +44,25 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const { connect } = useVideoContext();
   const { apiClient, dbClient } = useCoveyAppState();
   const toast = useToast();
-
-  const [currentFriendList, setFriendList] = useState<UserStatus[]>();
-  
-
-  // New code
+  const [currentFriendList, setFriendList] = useState<UserInfo[]>();
   const userProfile = CoveyTownUser.getInstance();
   const userEmail = userProfile.getUserEmail();
   const userStatus = userProfile.getUserStatus();
+  const googleUserName = userProfile.getUserName();
   const [friendEmail, setFriendEmail] = useState<string>('');
+  let finalUserName = userName;
 
-  
+  window.onbeforeunload = async () => {
+    await dbClient.setOnlineStatus({ email: userEmail, isOnline: false });
+    await dbClient.setUserLocation({ email: userEmail, location: "" }); 
+  }
 
   const updateFriendList = useCallback(async () => {
-    const friends = await dbClient.getFriends({ email: userEmail });
-    setFriendList(friends);
-  }, [dbClient, userEmail]);
+    if (googleUserName !== "") {
+      const friends = await dbClient.getFriends({ email: userEmail });
+      setFriendList(friends);
+    }
+  }, [dbClient, googleUserName, userEmail]);
   
   useEffect(() => {
     updateFriendList();
@@ -131,9 +135,13 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     }
   }, [dbClient, toast, userEmail]);
 
-  const handleJoin = useCallback(async (coveyRoomID: string) => {
+  const handleJoin = useCallback(async (coveyRoomID: string, finalName: string) => {
+    let newFinalName = finalName;
+    if (userProfile.getUserName() !== "" && userProfile.getUserStatus() !== false) {
+      newFinalName = userProfile.getUserName();
+    }
     try {
-      if (!userName || userName.length === 0) {
+      if (!newFinalName || newFinalName.length === 0) {
         toast({
           title: 'Unable to join town',
           description: 'Please select a username',
@@ -149,10 +157,13 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         });
         return;
       }
-      const initData = await Video.setup(userName, coveyRoomID);
+      const initData = await Video.setup(newFinalName, coveyRoomID);
 
       const loggedIn = await doLogin(initData);
       if (loggedIn) {
+        if (userStatus) {
+          await dbClient.setUserLocation({ email: userEmail, location: coveyRoomID });
+        }
         assert(initData.providerVideoToken);
         await connect(initData.providerVideoToken);
       }
@@ -163,10 +174,16 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         status: 'error'
       })
     }
-  }, [doLogin, userName, connect, toast]);
+  }, [userProfile, doLogin, toast, userStatus, connect, dbClient, userEmail]);
 
   const handleCreate = async () => {
-    if (!userName || userName.length === 0) {
+    if (googleUserName !== "" && userProfile.getUserStatus() !== false) {
+      finalUserName = googleUserName;
+    }
+    else {
+      finalUserName = userName;
+    }
+    if (!finalUserName || finalUserName.length === 0) {
       toast({
         title: 'Unable to create town',
         description: 'Please select a username before creating a town',
@@ -202,7 +219,10 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         isClosable: true,
         duration: null,
       })
-      await handleJoin(newTownInfo.coveyTownID);
+      await handleJoin(newTownInfo.coveyTownID, finalUserName);
+      if (userStatus) {
+        await dbClient.setUserLocation({ email: userEmail, location: newTownInfo.coveyTownID });
+      }
     } catch (err) {
       toast({
         title: 'Unable to connect to Towns Service',
@@ -231,7 +251,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
             <Heading p="4" as="h4" size="md">Friend list</Heading>
             <Table>
                 <TableCaption placement="bottom">Friends</TableCaption>
-                <Thead><Tr><Th>Username</Th><Th>Online</Th><Th>Remove</Th></Tr></Thead>
+                <Thead><Tr><Th>Username</Th><Th>Online</Th><Th>Location</Th><Th>Remove</Th></Tr></Thead>
                 <Tbody>
 
                 {currentFriendList?.map((friends) => (
@@ -253,9 +273,18 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                       </Icon>
                       )}
                     </Td>
+
+                    <Td role='cell'>{friends.location}</Td>
+
                     <Td role='cell'>
-                      <Button onClick={() => handleDeleteFriend(friends.email)}>Delete Friend</Button>
+                      <IconButton 
+                        colorScheme="teal"
+                        aria-label="Delete friend"
+                        icon={<DeleteIcon />}
+                        onClick={() => handleDeleteFriend(friends.email)} />
                     </Td>
+
+
                   </Tr>
                   ))}
 
@@ -319,7 +348,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                        onChange={event => setTownIDToJoin(event.target.value)}/>
               </FormControl>
                 <Button data-testid='joinTownByIDButton'
-                        onClick={() => handleJoin(townIDToJoin)}>Connect</Button>
+                        onClick={() => handleJoin(townIDToJoin, finalUserName)}>Connect</Button>
               </Flex>
 
             </Box>
@@ -334,14 +363,12 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                     <Tr key={town.coveyTownID}><Td role='cell'>{town.friendlyName}</Td><Td
                       role='cell'>{town.coveyTownID}</Td>
                       <Td role='cell'>{town.currentOccupancy}/{town.maximumOccupancy}
-                        <Button onClick={() => handleJoin(town.coveyTownID)}
+                        <Button onClick={() => handleJoin(town.coveyTownID, finalUserName)}
                                 disabled={town.currentOccupancy >= town.maximumOccupancy}>Connect</Button></Td></Tr>
                   ))}
                 </Tbody>
               </Table>
             </Box>
-
-
 
           </Box>
         </Stack>
