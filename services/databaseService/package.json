@@ -1,8 +1,12 @@
 {
   "name": "databaseservice",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend service for processing Covey.Town user database",
   "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kristen-hyman/covey.town.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run build:live",

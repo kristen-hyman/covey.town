@@ -5,7 +5,7 @@
   "main": "server.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/neu-se/covey.town.git"
+    "url": "git+https://github.com/kristen-hyman/covey.town.git"
   },
   "author": "Jonathan Bell",
   "license": "BSD-3-Clause",
