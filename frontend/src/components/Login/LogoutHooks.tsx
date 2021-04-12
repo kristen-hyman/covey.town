@@ -21,7 +21,7 @@ function LogoutHooks(): JSX.Element {
 
   const onLogoutSuccess = () => {
     toast({
-      title: 'Logged out successfully!',
+      title: 'Logout Successful!',
       description: 'Your account has been signed out.',
       status: 'success',
     });

@@ -50,7 +50,8 @@ function LoginHooks(): JSX.Element {
     checkUserExistsInDB(res.profileObj);
 
     toast({
-      title: `Login Successful! Welcome to Covey.Town ${res.profileObj.givenName}`,
+      title: 'Login Successful!',
+      description: `Welcome to your account ${res.profileObj.givenName}`,
       status: 'success',
     })
     
