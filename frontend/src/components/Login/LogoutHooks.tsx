@@ -13,10 +13,10 @@ function LogoutHooks(): JSX.Element {
 
   async function setOffline() {
     const userProfile = CoveyTownUser.getInstance();
-    console.log(userProfile);
     const userEmail = userProfile.getUserEmail();
     userProfile.setUserStatus(false);
     await dbClient.setOnlineStatus({ email: userEmail, isOnline: false });
+    await dbClient.setUserLocation({ email: userEmail, location: "" });
   }
 
   const onLogoutSuccess = () => {

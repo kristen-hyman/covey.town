@@ -3,14 +3,18 @@ import assert from "assert";
 import {
   Box,
   Button,
-  Center,
   Checkbox,
   Flex,
   FormControl,
   FormLabel,
   Heading,
   Icon,
+  IconButton,
   Input,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Stack,
   Table,
   TableCaption,
@@ -21,7 +25,8 @@ import {
   Tr,
   useToast
 } from '@chakra-ui/react';
-import {UserStatus} from '../../classes/DatabaseServiceClient';
+import DeleteIcon from '@material-ui/icons/Delete';
+import { UserInfo } from '../../classes/DatabaseServiceClient';
 import LoginHooks from './LoginHooks'
 import LogoutHooks from './LogoutHooks'
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
@@ -44,7 +49,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const { apiClient, dbClient } = useCoveyAppState();
   const toast = useToast();
 
-  const [currentFriendList, setFriendList] = useState<UserStatus[]>();
+  const [currentFriendList, setFriendList] = useState<UserInfo[]>();
   
 
   // New code
@@ -52,6 +57,12 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const userEmail = userProfile.getUserEmail();
   const userStatus = userProfile.getUserStatus();
   const [friendEmail, setFriendEmail] = useState<string>('');
+
+  // async function setMainLobbyLocation(): Promise<void> {
+  //   await dbClient.setUserLocation({ email: userEmail, location: "Lobby" });
+  // }
+
+  // setMainLobbyLocation();
 
   
 
@@ -154,6 +165,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       const loggedIn = await doLogin(initData);
       if (loggedIn) {
         assert(initData.providerVideoToken);
+        await dbClient.setUserLocation({ email: userEmail, location: coveyRoomID });
         await connect(initData.providerVideoToken);
       }
     } catch (err) {
@@ -163,7 +175,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         status: 'error'
       })
     }
-  }, [doLogin, userName, connect, toast]);
+  }, [userName, doLogin, toast, dbClient, userEmail, connect]);
 
   const handleCreate = async () => {
     if (!userName || userName.length === 0) {
@@ -203,6 +215,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         duration: null,
       })
       await handleJoin(newTownInfo.coveyTownID);
+      await dbClient.setUserLocation({ email: userEmail, location: newTownInfo.coveyTownID });
     } catch (err) {
       toast({
         title: 'Unable to connect to Towns Service',
@@ -231,7 +244,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
             <Heading p="4" as="h4" size="md">Friend list</Heading>
             <Table>
                 <TableCaption placement="bottom">Friends</TableCaption>
-                <Thead><Tr><Th>Username</Th><Th>Online</Th><Th>Remove</Th></Tr></Thead>
+                <Thead><Tr><Th>Username</Th><Th>Online</Th><Th>Location</Th><Th>Remove</Th></Tr></Thead>
                 <Tbody>
 
                 {currentFriendList?.map((friends) => (
@@ -253,9 +266,18 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                       </Icon>
                       )}
                     </Td>
+
+                    <Td role='cell'>{friends.location}</Td>
+
                     <Td role='cell'>
-                      <Button onClick={() => handleDeleteFriend(friends.email)}>Delete Friend</Button>
+                      <IconButton 
+                        colorScheme="teal"
+                        aria-label="Delete friend"
+                        icon={<DeleteIcon />}
+                        onClick={() => handleDeleteFriend(friends.email)} />
                     </Td>
+
+
                   </Tr>
                   ))}
 
@@ -340,8 +362,6 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                 </Tbody>
               </Table>
             </Box>
-
-
 
           </Box>
         </Stack>

@@ -33,8 +33,9 @@ function LoginHooks(): JSX.Element {
 
     if (userExists) {
       await dbClient.setOnlineStatus({ email: userInfo.email, isOnline: true });
+      await dbClient.setUserLocation({ email: userInfo.email, location: "Lobby" });
     } else {
-      await dbClient.addUser({ user: { firstName: userInfo.givenName, lastName: userInfo.familyName, email: userInfo.email, friends: [], isOnline: true }});
+      await dbClient.addUser({ user: { firstName: userInfo.givenName, lastName: userInfo.familyName, email: userInfo.email, friends: [], isOnline: true, location: "Lobby" }});
     }
   }
     

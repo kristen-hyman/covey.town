@@ -12,9 +12,10 @@ export interface User {
   isOnline: boolean;
 }
 
-export interface UserStatus {
+export interface UserInfo {
   email: string;
   isOnline: boolean;
+  location: string;
 }
 
 /**
@@ -37,6 +38,11 @@ export interface UserEmailRequest {
 export interface StatusChangeRequest {
   email: string;
   isOnline: boolean;
+}
+
+export interface LocationChangeRequest {
+  email: string;
+  location: string;
 }
 
 export interface AddFriendRequest {
@@ -90,18 +96,18 @@ export async function userExistsHandler(
 
 export async function getFriendsHandler(
   requestData: UserEmailRequest
-): Promise<ResponseEnvelope<UserStatus[]>> {
+): Promise<ResponseEnvelope<UserInfo[]>> {
   const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
   const user = await client
     .db(DB_NAME)
     .collection(COLLECTION_NAME)
     .findOne({ email: requestData.email });
   const { friends } = user;
-  const friendStatuses: UserStatus[] = await client
+  const friendStatuses: UserInfo[] = await client
     .db(DB_NAME)
     .collection(COLLECTION_NAME)
     .find({ email: { $in: friends } })
-    .project({ email: 1, isOnline: 1, _id: 0 })
+    .project({ email: 1, isOnline: 1, location: 1, _id: 0 })
     .toArray();
   client.close();
   return {
@@ -155,6 +161,26 @@ export async function setStatusHandler(
     message: "status changed",
   };
 }
+
+export async function setLocationHandler(
+  requestData: LocationChangeRequest
+): Promise<ResponseEnvelope<Record<string, null>>> {
+  const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
+  await client
+    .db(DB_NAME)
+    .collection(COLLECTION_NAME)
+    .updateOne(
+      { email: requestData.email },
+      { $set: { location: requestData.location } }
+    );
+  client.close();
+  return {
+    isOK: true,
+    message: "location changed",
+  };
+}
+
+
 
 export async function addFriendHandler(
   requestData: AddFriendRequest

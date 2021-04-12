@@ -11,6 +11,7 @@ import {
   getStatusHandler,
   removeFriendHandler,
   setStatusHandler,
+  setLocationHandler,
   userExistsHandler,
 } from "../requestHandlers/DBRequestHandlers";
 import { logError } from "../Utils";
@@ -74,6 +75,32 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
   app.post("/users/status/", BodyParser.json(), async (req, res) => {
     try {
       const result = await setStatusHandler(req.body);
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message:
+          "Internal server error, please see log in server for more details",
+      });
+    }
+  });
+
+  app.post("/users/status/", BodyParser.json(), async (req, res) => {
+    try {
+      const result = await setStatusHandler(req.body);
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message:
+          "Internal server error, please see log in server for more details",
+      });
+    }
+  });
+
+  app.post("/users/location/", BodyParser.json(), async (req, res) => {
+    try {
+      const result = await setLocationHandler(req.body);
       res.status(StatusCodes.OK).json(result);
     } catch (err) {
       logError(err);
