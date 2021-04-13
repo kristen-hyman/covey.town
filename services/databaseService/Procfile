@@ -1,1 +1,1 @@
-web: node build/server.js
+web: node services/dataService/build/server.js
