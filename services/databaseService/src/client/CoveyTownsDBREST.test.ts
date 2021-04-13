@@ -35,28 +35,16 @@ describe('TownsServiceAPIREST', () => {
     await server.close();
   });
   describe('CoveyTownCreateAPI', () => {
-    it('Allows for multiple users with the same first name', async () => {
+    it('Allows for multiple users with the same first and last names as long as email is dif', async () => {
       const user1: TestUserData = { firstName: 'Kristen', lastName: 'Hyman', email: 'hyman.kristen@gmail.com', 
         friends: ['hyman.jessica@gmail.com'], isOnline: true, location: 'Austin' };
 
-      const user2: TestUserData = { firstName: 'Jessica', lastName: 'Hyman', email: 'hyman.jessica@gmail.com', 
+      const user2: TestUserData = { firstName: 'Kristen', lastName: 'Hyman', email: 'kristenhyman1@gmail.com', 
         friends: ['hyman.kristen@gmail.com'], isOnline: true, location: 'Boston' };
 
-      expect(user1.firstName)
+      expect(user1.email)
         .not
-        .toBe(user2.firstName);
-    });
-
-    it('Allows for multiple users with the same last name', async () => {
-      const user1: TestUserData = { firstName: 'Kristen', lastName: 'Hyman', email: 'hyman.kristen@gmail.com', 
-        friends: ['hyman.jessica@gmail.com'], isOnline: true, location: 'Austin' };
-
-      const user2: TestUserData = { firstName: 'Jessica', lastName: 'Hyman', email: 'hyman.jessica@gmail.com', 
-        friends: ['hyman.kristen@gmail.com'], isOnline: true, location: 'Boston' };
-
-      expect(user1.lastName)
-        .not
-        .toBe(user2.lastName);
+        .toBe(user2.email);
     });
 
     it('Prohibits a blank username/email', async () => {

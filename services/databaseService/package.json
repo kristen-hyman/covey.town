@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "npm run build:live",
     "production": "npm run build && node build/server.js",
     "build": "tsc -p .",
@@ -17,12 +17,14 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "eslint": "^7.18.0",
     "express": "^4.17.1",
     "http-status-codes": "^2.1.4",
+    "jest": "^26.6.3",
     "mongodb": "^3.6.6",
     "socket.io": "^4.0.1",
-    "dotenv": "^8.2.0",
-    "eslint": "^7.18.0"
+    "ts-jest": "^26.5.4"
   },
   "devDependencies": {
     "@types/cors": "^2.8.10",
