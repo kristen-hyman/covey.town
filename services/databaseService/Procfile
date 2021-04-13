@@ -1,0 +1,1 @@
+web: node services/databaseService/build/server.js
