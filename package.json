@@ -4,7 +4,7 @@
     "description": "Development setup",
     "main": "index.js",
     "scripts": {
-        "heroku-postbuild": "cd services/roomService && npm ci && npm run build",
+        "heroku-postbuild": "cd services/roomService && npm ci && npm run build && cd ../databaseService/ && npm ci && npm run build",
         "run-services-actions": "heroku local -p 3001 web",
         "lint": "cd services/roomService && npm run-script lint && cd ../../frontend && npm run-script lint"
     },
