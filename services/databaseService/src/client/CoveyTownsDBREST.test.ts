@@ -12,8 +12,6 @@ type TestUserData = {
   firstName: string, lastName: string, email: string, friends: string [], isOnline: boolean, location: string
 };
 
-
-
 describe('TownsServiceAPIREST', () => {
   let server: http.Server;
   let apiClient: DatabaseServiceClient;
