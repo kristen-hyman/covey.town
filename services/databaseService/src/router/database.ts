@@ -1,8 +1,8 @@
-import BodyParser from "body-parser";
-import { Express } from "express";
-import { Server } from "http";
-import { StatusCodes } from "http-status-codes";
-import io from "socket.io";
+import BodyParser from 'body-parser';
+import { Express } from 'express';
+import { Server } from 'http';
+import { StatusCodes } from 'http-status-codes';
+import io from 'socket.io';
 import {
   addFriendHandler,
   addUserHandler,
@@ -13,11 +13,11 @@ import {
   setStatusHandler,
   setLocationHandler,
   userExistsHandler,
-} from "../requestHandlers/DBRequestHandlers";
-import { logError } from "../Utils";
+} from '../requestHandlers/DBRequestHandlers';
+import { logError } from '../Utils';
 
 export default function addDBRoutes(http: Server, app: Express): io.Server {
-  app.get("/users/:emailID", BodyParser.json(), async (req, res) => {
+  app.get('/users/:emailID', BodyParser.json(), async (req, res) => {
     try {
       // const em:string = req.query.email || '';
       // console.log(req.query.email);
@@ -28,12 +28,12 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message:
-          "Internal server error, please see log in server for more details",
+          'Internal server error, please see log in server for more details',
       });
     }
   });
 
-  app.get("/users", BodyParser.json(), async (_req, res) => {
+  app.get('/users', BodyParser.json(), async (_req, res) => {
     try {
       const result = await getAllUsersHandler();
       res.status(StatusCodes.OK).json(result);
@@ -41,12 +41,12 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message:
-          "Internal server error, please see log in server for more details",
+          'Internal server error, please see log in server for more details',
       });
     }
   });
 
-  app.get("/users/:emailID/friends", BodyParser.json(), async (req, res) => {
+  app.get('/users/:emailID/friends', BodyParser.json(), async (req, res) => {
     try {
       const result = await getFriendsHandler({ email: req.params.emailID });
       res.status(StatusCodes.OK).json(result);
@@ -54,12 +54,12 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message:
-          "Internal server error, please see log in server for more details",
+          'Internal server error, please see log in server for more details',
       });
     }
   });
 
-  app.get("/users/:emailID/status", BodyParser.json(), async (req, res) => {
+  app.get('/users/:emailID/status', BodyParser.json(), async (req, res) => {
     try {
       const result = await getStatusHandler({ email: req.params.emailID });
       res.status(StatusCodes.OK).json(result);
@@ -67,12 +67,12 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message:
-          "Internal server error, please see log in server for more details",
+          'Internal server error, please see log in server for more details',
       });
     }
   });
 
-  app.post("/users/status/", BodyParser.json(), async (req, res) => {
+  app.post('/users/status/', BodyParser.json(), async (req, res) => {
     try {
       const result = await setStatusHandler(req.body);
       res.status(StatusCodes.OK).json(result);
@@ -80,12 +80,12 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message:
-          "Internal server error, please see log in server for more details",
+          'Internal server error, please see log in server for more details',
       });
     }
   });
 
-  app.post("/users/status/", BodyParser.json(), async (req, res) => {
+  app.post('/users/status/', BodyParser.json(), async (req, res) => {
     try {
       const result = await setStatusHandler(req.body);
       res.status(StatusCodes.OK).json(result);
@@ -93,12 +93,12 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message:
-          "Internal server error, please see log in server for more details",
+          'Internal server error, please see log in server for more details',
       });
     }
   });
 
-  app.post("/users/location/", BodyParser.json(), async (req, res) => {
+  app.post('/users/location/', BodyParser.json(), async (req, res) => {
     try {
       const result = await setLocationHandler(req.body);
       res.status(StatusCodes.OK).json(result);
@@ -106,12 +106,12 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message:
-          "Internal server error, please see log in server for more details",
+          'Internal server error, please see log in server for more details',
       });
     }
   });
 
-  app.post("/users", BodyParser.json(), async (req, res) => {
+  app.post('/users', BodyParser.json(), async (req, res) => {
     try {
       const result = await addUserHandler(req.body);
       res.status(StatusCodes.OK).json(result);
@@ -119,13 +119,13 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message:
-          "Internal server error, please see log in server for more details",
+          'Internal server error, please see log in server for more details',
       });
     }
   });
 
   app.post(
-    "/users/:emailID/friends/:friendEmailID",
+    '/users/:emailID/friends/:friendEmailID',
     BodyParser.json(),
     async (req, res) => {
       try {
@@ -138,14 +138,14 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
         logError(err);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
           message:
-            "Internal server error, please see log in server for more details",
+            'Internal server error, please see log in server for more details',
         });
       }
-    }
+    },
   );
 
   app.delete(
-    "/users/:emailID/friends/:friendEmailID",
+    '/users/:emailID/friends/:friendEmailID',
     BodyParser.json(),
     async (req, res) => {
       try {
@@ -158,12 +158,12 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
         logError(err);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
           message:
-            "Internal server error, please see log in server for more details",
+            'Internal server error, please see log in server for more details',
         });
       }
-    }
+    },
   );
 
-  const socketServer = new io.Server(http, { cors: { origin: "*" } });
+  const socketServer = new io.Server(http, { cors: { origin: '*' } });
   return socketServer;
 }

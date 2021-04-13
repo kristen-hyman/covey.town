@@ -4,8 +4,7 @@ import { useGoogleLogout } from 'react-google-login';
 import CoveyTownUser from './User';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 
-const clientId =
-  '147790869304-31si4r0ejgmklrphlis0eehdgk0qo9qo.apps.googleusercontent.com';
+const clientId = process.env.REACT_APP_GOOGLEID; 
 
 function LogoutHooks(): JSX.Element {
   const { dbClient } = useCoveyAppState();
