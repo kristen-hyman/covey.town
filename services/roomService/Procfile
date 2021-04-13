@@ -1,1 +1,1 @@
-web: node server.js
+web: node services/roomService/build/server.js
