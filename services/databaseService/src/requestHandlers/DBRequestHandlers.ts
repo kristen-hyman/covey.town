@@ -56,8 +56,7 @@ export interface RemoveFriendRequest {
 }
 
 export default class MongoClientFactory {
-  private uri =
-    'mongodb+srv://dbUser:dbUserPassword@cluster0.rdokz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+  private uri = process.env.MONGODB_URI || '';
 
   private static _instance: MongoClientFactory;
 
@@ -116,7 +115,7 @@ export async function getFriendsHandler(
 export async function getAllUsersHandler(): Promise<ResponseEnvelope<string[]>> {
   const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
   const userEmails = await client.db(DB_NAME).collection(COLLECTION_NAME).distinct('email');
-
+  client.close();
   return {
     isOK: true,
     response: userEmails,
@@ -130,6 +129,7 @@ export async function getStatusHandler(
     .db(DB_NAME)
     .collection(COLLECTION_NAME)
     .findOne({ email: requestData.email });
+  client.close();
   return {
     isOK: true,
     response: user.isOnline,
@@ -234,6 +234,7 @@ export async function removeFriendHandler(
     .db(DB_NAME)
     .collection(COLLECTION_NAME)
     .updateOne({ email: requestData.email }, { $pull: { friends: requestData.friendEmail } });
+  client.close();
   return {
     isOK: true,
     message: 'friend removed',
