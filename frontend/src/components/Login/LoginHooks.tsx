@@ -6,7 +6,7 @@ import CoveyTownUser from './User';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 
 
-const clientId = process.env.REACT_APP_GOOGLEID;
+const clientId = process.env.REACT_APP_GOOGLEID || '';
 
 function LoginHooks(): JSX.Element {
   const { dbClient } = useCoveyAppState();
