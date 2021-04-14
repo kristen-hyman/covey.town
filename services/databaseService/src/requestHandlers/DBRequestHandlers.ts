@@ -73,7 +73,6 @@ export default class MongoClientFactory {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('this.uri is...', this.uri);
     await client.connect();
 
     return client;
