@@ -117,7 +117,7 @@ describe('DatabaseServiceTest', () => {
       await apiClient.deleteUser({ email: 'whodis1@gmail.com' });
     });
 
-    it('gets a list of friends if the user has firends', async () => {
+    it('gets a list of friends if the user has friends', async () => {
       const user1: TestUserData = {
         firstName: 'Whodis',
         lastName: 'Whodis',
@@ -178,10 +178,52 @@ describe('DatabaseServiceTest', () => {
       await apiClient.deleteUser({ email: 'jabreakit.jubawdit@gmail.com' });
     });
 
-    it('no such user', async () => {
+    it('throws an error when getting friends for a user that does not exist.', async () => {
       await expect(apiClient.getFriends({ email: 'someonenotonthedatabase' })).rejects.toThrowError(
         'Error processing request: User with that email does not exist',
       );
+    });
+  });
+
+  describe('DatabaseServiceDeleteFriendsAPI', () => {
+    it('deletes a friend from a users friend list', async () => {
+      const user1: TestUserData = {
+        firstName: 'Whodis',
+        lastName: 'Whodis',
+        email: 'whodis@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      const user2: TestUserData = {
+        firstName: 'jabreakit',
+        lastName: 'jubawdit',
+        email: 'jabreakit.jubawdit@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addFriend({
+        email: 'whodis@gmail.com',
+        friendEmail: 'jabreakit.jubawdit@gmail.com',
+      });
+
+      let friends: TestUserInfo[] = await apiClient.getFriends({ email: 'whodis@gmail.com' });
+      expect(friends).toContainEqual({
+        email: 'jabreakit.jubawdit@gmail.com',
+        isOnline: true,
+        location: '',
+      });
+
+      await apiClient.deleteFriend({
+        email: 'whodis@gmail.com',
+        friendEmail: 'jabreakit.jubawdit@gmail.com',
+      });
+      friends = await apiClient.getFriends({ email: 'whodis@gmail.com' });
+
+      expect(friends.length).toBe(0);
     });
   });
 });
