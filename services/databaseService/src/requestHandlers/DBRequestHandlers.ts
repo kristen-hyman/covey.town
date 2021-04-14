@@ -57,7 +57,8 @@ export interface RemoveFriendRequest {
 
 export default class MongoClientFactory {
   // private uri = process.env.REACT_APP_MONGODB_URI || '';
-  private uri = 'mongodb+srv://dbUser:dbUserPassword@cluster0.rdokz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+  private uri =
+    'mongodb+srv://dbUser:dbUserPassword@cluster0.rdokz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 
   private static _instance: MongoClientFactory;
 
@@ -73,7 +74,6 @@ export default class MongoClientFactory {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('this.uri is...', this.uri);
     await client.connect();
 
     return client;
@@ -226,6 +226,18 @@ export async function addUserHandler(
   return {
     isOK: true,
     message: 'user was not added',
+  };
+}
+
+export async function deleteUser(
+  requestData: UserEmailRequest,
+): Promise<ResponseEnvelope<Record<string, null>>> {
+  const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
+  await client.db(DB_NAME).collection(COLLECTION_NAME).deleteOne({ email: requestData.email });
+  client.close();
+  return {
+    isOK: true,
+    message: 'User deleted',
   };
 }
 
