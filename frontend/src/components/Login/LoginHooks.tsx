@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button, useToast } from '@chakra-ui/react';
 import { FcGoogle } from 'react-icons/fc';
@@ -6,7 +7,7 @@ import CoveyTownUser from './User';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 
 
-const clientId: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || ''; 
+const clientId = '147790869304-31si4r0ejgmklrphlis0eehdgk0qo9qo.apps.googleusercontent.com'; 
 
 function LoginHooks(): JSX.Element {
   const { dbClient } = useCoveyAppState();

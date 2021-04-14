@@ -56,7 +56,8 @@ export interface RemoveFriendRequest {
 }
 
 export default class MongoClientFactory {
-  private uri: string = process.env.REACT_APP_MONGODB_URI || '';
+  // private uri = process.env.REACT_APP_MONGODB_URI || '';
+  private uri = 'mongodb+srv://dbUser:dbUserPassword@cluster0.rdokz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 
   private static _instance: MongoClientFactory;
 
@@ -72,8 +73,8 @@ export default class MongoClientFactory {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('this.uri is...', this.uri);
     await client.connect();
+
     return client;
   }
 }
