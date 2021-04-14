@@ -277,5 +277,62 @@ describe('TownsServiceAPIREST', () => {
   
       expect(sizeAfterOneAdd).toEqual(sizeAfterSecondAdd);
     });
+    it('delete a friend from a users friendlist, make sure friendlist updates', async () => {
+      const user1: TestUserData = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+  
+      const user2: TestUserData = {
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'janedoe@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+  
+  
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addFriend( { email: user1.email, friendEmail: user2.email });
+      await apiClient.deleteFriend({ email: user1.email, friendEmail: user2.email });
+      const friendsListAfterDelete = await apiClient.getFriends({ email: user1.email });  
+  
+      expect(friendsListAfterDelete).not.toContainEqual({ email: user2.email, isOnline: user2.isOnline, location: user2.location });
+    });
+    it('delete an existing user from empty friendlist, check that nothing happens', async () => {
+      const user1: TestUserData = {
+        firstName: 'Friendless',
+        lastName: 'User',
+        email: 'friendlessuser@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+  
+      const user2: TestUserData = {
+        firstName: 'Lonely',
+        lastName: 'Boi',
+        email: 'lonelyboi@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+  
+  
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.deleteFriend( { email: user1.email, friendEmail: user2.email });
+      const addFriendResult = await apiClient.getFriends({ email: user1.email });
+      const sizeAfterDelete = addFriendResult.length;
+  
+  
+      expect(sizeAfterDelete).toEqual(0);
+    });
   });
 });
