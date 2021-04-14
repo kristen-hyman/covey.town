@@ -97,17 +97,26 @@ export async function getFriendsHandler(
   requestData: UserEmailRequest,
 ): Promise<ResponseEnvelope<UserInfo[]>> {
   const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
-  const user = await client
-    .db(DB_NAME)
-    .collection(COLLECTION_NAME)
-    .findOne({ email: requestData.email });
-  const { friends } = user;
-  const friendStatuses: UserInfo[] = await client
-    .db(DB_NAME)
-    .collection(COLLECTION_NAME)
-    .find({ email: { $in: friends } })
-    .project({ email: 1, isOnline: 1, location: 1, _id: 0 })
-    .toArray();
+  let friendStatuses: UserInfo[];
+  try {
+    const user = await client
+      .db(DB_NAME)
+      .collection(COLLECTION_NAME)
+      .findOne({ email: requestData.email });
+    const { friends } = user;
+    friendStatuses = await client
+      .db(DB_NAME)
+      .collection(COLLECTION_NAME)
+      .find({ email: { $in: friends } })
+      .project({ email: 1, isOnline: 1, location: 1, _id: 0 })
+      .toArray();
+  } catch (err) {
+    client.close();
+    return {
+      isOK: false,
+      message: 'User with that email does not exist',
+    };
+  }
   client.close();
   return {
     isOK: true,

@@ -75,6 +75,12 @@ type TestUserData = {
   location: string;
 };
 
+export interface TestUserInfo {
+  email: string;
+  isOnline: boolean;
+  location: string;
+}
+
 describe('DatabaseServiceTest', () => {
   let server: http.Server;
   let apiClient: DatabaseServiceClient;
@@ -99,7 +105,7 @@ describe('DatabaseServiceTest', () => {
       const user1: TestUserData = {
         firstName: 'Whodis',
         lastName: 'Whodis',
-        email: 'whodis@gmail.com',
+        email: 'whodis1@gmail.com',
         friends: [],
         isOnline: true,
         location: '',
@@ -107,8 +113,75 @@ describe('DatabaseServiceTest', () => {
 
       await apiClient.addUser({ user: user1 });
 
-      expect(await apiClient.getFriends({ email: 'whodis@gmail.com' })).toStrictEqual([]);
+      expect(await apiClient.getFriends({ email: 'whodis1@gmail.com' })).toStrictEqual([]);
+      await apiClient.deleteUser({ email: 'whodis1@gmail.com' });
+    });
+
+    it('gets a list of friends if the user has firends', async () => {
+      const user1: TestUserData = {
+        firstName: 'Whodis',
+        lastName: 'Whodis',
+        email: 'whodis@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      const user2: TestUserData = {
+        firstName: 'jabreakit',
+        lastName: 'jubawdit',
+        email: 'jabreakit.jubawdit@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      const user3: TestUserData = {
+        firstName: 'jabreakit',
+        lastName: 'jubawdit2',
+        email: 'jabreakit.jubawdit2@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addUser({ user: user3 });
+      await apiClient.addFriend({
+        email: 'whodis@gmail.com',
+        friendEmail: 'jabreakit.jubawdit@gmail.com',
+      });
+      let friends: TestUserInfo[] = await apiClient.getFriends({ email: 'whodis@gmail.com' });
+      expect(friends).toContainEqual({
+        email: 'jabreakit.jubawdit@gmail.com',
+        isOnline: true,
+        location: '',
+      });
+
+      await apiClient.addFriend({
+        email: 'whodis@gmail.com',
+        friendEmail: 'jabreakit.jubawdit2@gmail.com',
+      });
+
+      friends = await apiClient.getFriends({ email: 'whodis@gmail.com' });
+      expect(friends).toContainEqual({
+        email: 'jabreakit.jubawdit@gmail.com',
+        isOnline: true,
+        location: '',
+      });
+      expect(friends).toContainEqual({
+        email: 'jabreakit.jubawdit2@gmail.com',
+        isOnline: true,
+        location: '',
+      });
+
       await apiClient.deleteUser({ email: 'whodis@gmail.com' });
+      await apiClient.deleteUser({ email: 'jabreakit.jubawdit2@gmail.com' });
+      await apiClient.deleteUser({ email: 'jabreakit.jubawdit@gmail.com' });
+    });
+
+    it('no such user', async () => {
+      await expect(apiClient.getFriends({ email: 'someonenotonthedatabase' })).rejects.toThrowError(
+        'Error processing request: User with that email does not exist',
+      );
     });
   });
 });

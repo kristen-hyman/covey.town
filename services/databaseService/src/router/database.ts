@@ -6,6 +6,7 @@ import io from 'socket.io';
 import {
   addFriendHandler,
   addUserHandler,
+  deleteUser,
   getAllUsersHandler,
   getFriendsHandler,
   getStatusHandler,
