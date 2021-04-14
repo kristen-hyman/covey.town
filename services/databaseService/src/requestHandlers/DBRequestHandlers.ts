@@ -56,7 +56,7 @@ export interface RemoveFriendRequest {
 }
 
 export default class MongoClientFactory {
-  private uri = process.env.MONGODB_URI || '';
+  private uri: string = process.env.REACT_APP_MONGODB_URI || '';
 
   private static _instance: MongoClientFactory;
 
@@ -72,6 +72,7 @@ export default class MongoClientFactory {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
+    console.log('this.uri is...', this.uri);
     await client.connect();
     return client;
   }
