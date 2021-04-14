@@ -9,33 +9,59 @@ import DatabaseServiceClient from './DatabasesServiceClient';
 
 /**
    * Testing:
-   *
-   * Adding User to DB
+   * 
+   * KRISTEN
+   * addUser
    * adding a user to database with all appropriate parameters works
-   * adding a user to database with empty username does not work
-   * can NOT add a user with same email twice (ex: kristen hyman hyman.kristen@gmail.com and krissy hyman hyman.kristen@gmai.com)
+   * Allows for multiple users with the same first and last names as long as email is dif
    *
-   * Adding Users to FriendList:
-   * adding an existing user to empty friendlist works
-   * adding an existing user to non empty friendlist works
-   *
+   * userExistence
    * adding an nonexisting user to empty friendlist does not work
    * adding a nonexisting user to non empty friendlist does not work
-   *
-   * Signing online/offline
+   * user that is not in database hwen queried w/ userExistence should return false
+   * user in database wehn queried w/ userExistence shoudl return false
+   * after deletion, userExistence for deleted user should return false
+   * after adding, userExistence should return true
+   * 
+   * 
+   *GERARD
+   * setOnlineStatus and getOnlineStatus
+   * // look into how to invoke closing the tab to see if it changes to offline for these tests?
    * signing online changes a users status to true
    * signing offline changes a users status to offline
-   * cant be offline and have a location
    * signing offline changes a users status to offline for people who have them as friends on their friendlists
    * signing online changes a users status to offline for people who have them as friends on their friendlists
    * 
-   *
-   * Querying friendlist
-   * querying a users's friends will show all their added friends
+   * setUserLocation
+   * // look into how to invoke closing tab?
+   * 
+   * sign in and check userLocation before and after to confirm change (using user.location)
+   * sign out and check userLocation before and after to confirm change (using user.location)
+   * close tab and check userLocation before and after to confirm change (using user.location)
+   * join/create room and check userLocation before and after to confirm change (using user.location)
+   * leave room and check userLocation before and after to confirm change (using user.location)
+   * cant be offline and have a location
+   * change a user's location, then check user.location to makes sure the users's attribute updated
+   * 
+   * YASH
+   * getFriends
+   * querying a users's friends will show all their added friends (empty list)
+   * querying a users's friends will show all their added friends ( list with friends)
    * add a friend to friendlist with mulitple friends in it, check that friendlist updates
+   * querying a nonexistent user's friends will return error/wont work
+   * 
+   * 
+   * deleteFriend
    * delete a friend from friendlist with mulitple friends in it, check that friendlist updates
    * do nothing to friendlist, make sure it stays the same with no changes
    *
+   * WALEED
+   * 
+   * addFriend
+   * adding an existing user to empty friendlist works
+   * adding an existing user to non empty friendlist works
+   * if you add the same friend to your list more than once it does not duplicate on the list
+   * 
    * Deleting Users/friends
    * delete a user from DB, make sure they are deleted from all friendlists they are on
    * delete a friend from a users friendlist, make sure friendlist updates
