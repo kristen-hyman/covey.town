@@ -1,18 +1,19 @@
+
 import React from 'react';
 import { Button, useToast } from '@chakra-ui/react';
 import { FcGoogle } from 'react-icons/fc';
-import { useGoogleLogin } from 'react-google-login';
+import { useGoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
 import CoveyTownUser from './User';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 
 
-const clientId = process.env.REACT_APP_GOOGLEID || '';
+const clientId = '147790869304-31si4r0ejgmklrphlis0eehdgk0qo9qo.apps.googleusercontent.com'; 
 
 function LoginHooks(): JSX.Element {
   const { dbClient } = useCoveyAppState();
   const toast = useToast();
 
-  const refreshTokenSetup = (res: any) => {
+  const refreshTokenSetup = (res: GoogleLoginResponse) => {
     let refreshTiming = (res.tokenObj.expires_in || 3600 - 5 * 60) * 1000;
   
     const refreshToken = async () => {
@@ -27,37 +28,42 @@ function LoginHooks(): JSX.Element {
     setTimeout(refreshToken, refreshTiming);
   };
 
-  async function checkUserExistsInDB(userInfo: any) {
-    const userExists = await dbClient.userExistence({ email: userInfo.email });
+  async function checkUserExistsInDB(res: GoogleLoginResponse) {
+    const userExists = await dbClient.userExistence({ email: res.profileObj.email });
 
     if (userExists) {
-      await dbClient.setOnlineStatus({ email: userInfo.email, isOnline: true });
-      await dbClient.setUserLocation({ email: userInfo.email, location: "Lobby" });
+      await dbClient.setOnlineStatus({ email: res.profileObj.email, isOnline: true });
+      await dbClient.setUserLocation({ email: res.profileObj.email, location: "Lobby" });
     } else {
-      await dbClient.addUser({ user: { firstName: userInfo.givenName, lastName: userInfo.familyName, email: userInfo.email, friends: [], isOnline: true, location: "Lobby" }});
+      await dbClient.addUser({ user: { firstName: res.profileObj.givenName, lastName: res.profileObj.familyName, email: res.profileObj.email, friends: [], isOnline: true, location: "Lobby" }});
     }
   }
-    
-  const onSuccess = (res: any) => {
-    // Save the user data in CoveyTownUser singleton
-    const userProfile = CoveyTownUser.getInstance();
-    userProfile.setUserEmail(res.profileObj.email);
-    userProfile.setUserName(res.profileObj.givenName);
-    userProfile.setUserStatus(true);
 
-    // Checking if user exists in database
-    checkUserExistsInDB(res.profileObj);
+  function instanceOfGoogleLoginResponse(res: GoogleLoginResponse | GoogleLoginResponseOffline): res is GoogleLoginResponse {
+    return 'profileObj' in res;
+  }
+  
+  const onSuccess = (res: GoogleLoginResponse | GoogleLoginResponseOffline) => {
+    if (instanceOfGoogleLoginResponse(res)) {
+      const userProfile = CoveyTownUser.getInstance();
+      userProfile.setUserEmail(res.profileObj.email);
+      userProfile.setUserName(res.profileObj.givenName);
+      userProfile.setUserStatus(true);
 
-    toast({
-      title: 'Login Successful!',
-      description: `Welcome to your account ${res.profileObj.givenName}`,
-      status: 'success',
-    })
-    
+      // Checking if user exists in database
+      checkUserExistsInDB(res);
+
+      toast({
+        title: 'Login Successful!',
+        description: `Welcome to your account ${res.profileObj.givenName}`,
+        status: 'success',
+      })
+      
     refreshTokenSetup(res);
+    }
   };
 
-  const onFailure = (res: any) => {
+  const onFailure = () => {
     toast({
       title: 'Google Login failed',
       status: 'error',
