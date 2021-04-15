@@ -205,6 +205,8 @@ describe('TownsServiceAPIREST', () => {
       expect(addFriendResult).toContainEqual( {
         email: user2.email, isOnline: user2.isOnline, location: user2.location,
       });
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
     });
     it('adding an existing user to a non-empty friendlist works', async () => {
       const user1: TestUserData = {
@@ -235,6 +237,8 @@ describe('TownsServiceAPIREST', () => {
       };
   
   
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
       await apiClient.addUser({ user: user3 });
       await apiClient.addFriend( { email: user1.email, friendEmail: user2.email });
       await apiClient.addFriend( { email: user1.email, friendEmail: user3.email });
@@ -243,6 +247,9 @@ describe('TownsServiceAPIREST', () => {
       expect(addFriendResult).toContainEqual( {
         email: user3.email, isOnline: user3.isOnline, location: user3.location,
       });
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
+      await apiClient.deleteUser({ email: user3.email });
     });
     it('if you add the same friend to your list more than once it does not duplicate on the list', async () => {
       const user1: TestUserData = {
@@ -276,6 +283,9 @@ describe('TownsServiceAPIREST', () => {
   
   
       expect(sizeAfterOneAdd).toEqual(sizeAfterSecondAdd);
+
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
     });
     it('delete a friend from a users friendlist, make sure friendlist updates', async () => {
       const user1: TestUserData = {
@@ -304,6 +314,9 @@ describe('TownsServiceAPIREST', () => {
       const friendsListAfterDelete = await apiClient.getFriends({ email: user1.email });  
   
       expect(friendsListAfterDelete).not.toContainEqual({ email: user2.email, isOnline: user2.isOnline, location: user2.location });
+
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
     });
     it('delete an existing user from empty friendlist, check that nothing happens', async () => {
       const user1: TestUserData = {
@@ -333,6 +346,8 @@ describe('TownsServiceAPIREST', () => {
   
   
       expect(sizeAfterDelete).toEqual(0);
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
     });
     it('delete a user from DB, make sure they are deleted from all friendlists they are on', async () => {
       const user1: TestUserData = {
@@ -352,15 +367,19 @@ describe('TownsServiceAPIREST', () => {
         isOnline: true,
         location: 'Lobby',
       };
-  
+
   
       await apiClient.addUser({ user: user1 });
       await apiClient.addUser({ user: user2 });
       await apiClient.addFriend({ email: user1.email, friendEmail: user2.email });
       await apiClient.deleteUser({ email: user2.email });
       const addFriendResult = await apiClient.getFriends({ email: user1.email });
-      const sizeAfterDelete = addFriendResult.length;
-      expect(sizeAfterDelete).toEqual(0);
+      const sizeAfterDelete1 = addFriendResult.length;
+      expect(sizeAfterDelete1).toEqual(0);
+
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
+
     });
   });
 });
