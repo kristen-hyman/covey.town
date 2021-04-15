@@ -5,68 +5,66 @@ import { AddressInfo } from 'net';
 import addDBRoutes from '../router/database';
 import DatabaseServiceClient from './DatabasesServiceClient';
 
-
-
 /**
-   * Testing:
-   * 
-   * KRISTEN
-   * addUser
-   * adding a user to database with all appropriate parameters works
-   * Allows for multiple users with the same first and last names as long as email is dif
-   *
-   * userExistence
-   * adding an nonexisting user to empty friendlist does not work
-   * adding a nonexisting user to non empty friendlist does not work
-   * user that is not in database hwen queried w/ userExistence should return false
-   * user in database wehn queried w/ userExistence shoudl return false
-   * after deletion, userExistence for deleted user should return false
-   * after adding, userExistence should return true
-   * 
-   * 
-   *GERARD
-   * setOnlineStatus and getOnlineStatus
-   * // look into how to invoke closing the tab to see if it changes to offline for these tests?
-   * signing online changes a users status to true
-   * signing offline changes a users status to offline
-   * signing offline changes a users status to offline for people who have them as friends on their friendlists
-   * signing online changes a users status to offline for people who have them as friends on their friendlists
-   * 
-   * setUserLocation
-   * // look into how to invoke closing tab?
-   * 
-   * sign in and check userLocation before and after to confirm change (using user.location)
-   * sign out and check userLocation before and after to confirm change (using user.location)
-   * close tab and check userLocation before and after to confirm change (using user.location)
-   * join/create room and check userLocation before and after to confirm change (using user.location)
-   * leave room and check userLocation before and after to confirm change (using user.location)
-   * cant be offline and have a location
-   * change a user's location, then check user.location to makes sure the users's attribute updated
-   * 
-   * YASH
-   * getFriends
-   * querying a users's friends will show all their added friends (empty list)
-   * querying a users's friends will show all their added friends ( list with friends)
-   * add a friend to friendlist with mulitple friends in it, check that friendlist updates
-   * querying a nonexistent user's friends will return error/wont work
-   * 
-   * 
-   * deleteFriend
-   * delete a friend from friendlist with mulitple friends in it, check that friendlist updates
-   * do nothing to friendlist, make sure it stays the same with no changes
-   *
-   * WALEED
-   * 
-   * addFriend
-   * adding an existing user to empty friendlist works
-   * adding an existing user to non empty friendlist works
-   * if you add the same friend to your list more than once it does not duplicate on the list
-   * 
-   * Deleting Users/friends
-   * delete a user from DB, make sure they are deleted from all friendlists they are on
-   * delete a friend from a users friendlist, make sure friendlist updates
-   * delete an existing user from empty friendlist, check that nothing happens
-*/
+ * Testing:
+ *
+ * KRISTEN
+ * addUser
+ * adding a user to database with all appropriate parameters works
+ * Allows for multiple users with the same first and last names as long as email is dif
+ *
+ * userExistence
+ * adding an nonexisting user to empty friendlist does not work
+ * adding a nonexisting user to non empty friendlist does not work
+ * user that is not in database hwen queried w/ userExistence should return false
+ * user in database wehn queried w/ userExistence shoudl return false
+ * after deletion, userExistence for deleted user should return false
+ * after adding, userExistence should return true
+ *
+ *
+ *GERARD
+ * setOnlineStatus and getOnlineStatus
+ * // look into how to invoke closing the tab to see if it changes to offline for these tests?
+ * signing online changes a users status to true
+ * signing offline changes a users status to offline
+ * signing offline changes a users status to offline for people who have them as friends on their friendlists
+ * signing online changes a users status to offline for people who have them as friends on their friendlists
+ *
+ * setUserLocation
+ * // look into how to invoke closing tab?
+ *
+ * sign in and check userLocation before and after to confirm change (using user.location)
+ * sign out and check userLocation before and after to confirm change (using user.location)
+ * close tab and check userLocation before and after to confirm change (using user.location)
+ * join/create room and check userLocation before and after to confirm change (using user.location)
+ * leave room and check userLocation before and after to confirm change (using user.location)
+ * cant be offline and have a location
+ * change a user's location, then check user.location to makes sure the users's attribute updated
+ *
+ * YASH
+ * getFriends
+ * querying a users's friends will show all their added friends (empty list)
+ * querying a users's friends will show all their added friends ( list with friends)
+ * add a friend to friendlist with mulitple friends in it, check that friendlist updates
+ * querying a nonexistent user's friends will return error/wont work
+ *
+ *
+ * deleteFriend
+ * delete a friend from friendlist with mulitple friends in it, check that friendlist updates
+ * do nothing to friendlist, make sure it stays the same with no changes
+ *
+ * WALEED
+ *
+ * addFriend
+ * adding an existing user to empty friendlist works
+ * adding an existing user to non empty friendlist works
+ * if you add the same friend to your list more than once it does not duplicate on the list
+ *
+ * Deleting Users/friends
+ * delete a user from DB, make sure they are deleted from all friendlists they are on
+ * delete a friend from a users friendlist, make sure friendlist updates
+ * delete an existing user from empty friendlist, check that nothing happens
+ */
 
 type TestUserData = {
   firstName: string;
@@ -77,7 +75,13 @@ type TestUserData = {
   location: string;
 };
 
-describe('TownsServiceAPIREST', () => {
+export interface TestUserInfo {
+  email: string;
+  isOnline: boolean;
+  location: string;
+}
+
+describe('DatabaseServiceTest', () => {
   let server: http.Server;
   let apiClient: DatabaseServiceClient;
 
@@ -87,82 +91,160 @@ describe('TownsServiceAPIREST', () => {
     server = http.createServer(app);
 
     addDBRoutes(server, app);
-    await server.listen();
+    server.listen();
     const address = server.address() as AddressInfo;
 
     apiClient = new DatabaseServiceClient(`http://127.0.0.1:${address.port}`);
   });
 
   afterAll(async () => {
-    await server.close();
+    server.close();
   });
-  describe('CoveyTownCreateAPI', () => {
-    it('Allows for multiple users with the same first and last names as long as email is dif', async () => {
+
+  describe('DatabaseServiceAddUserAPI', () => {
+    it('adding a user to database with all appropriate parameters works', async () => {
       const user1: TestUserData = {
-        firstName: 'Kristen',
-        lastName: 'Hyman',
-        email: 'hyman.kristen@gmail.com',
-        friends: ['hyman.jessica@gmail.com'],
+        firstName: 'Scarlett',
+        lastName: 'Silverstein',
+        email: 'scarlett@gmail.com',
+        friends: [],
         isOnline: true,
-        location: 'Austin',
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+
+      expect(await apiClient.userExistence({ email: 'scarlett@gmail.com' })).toBe(true);
+
+      expect(user1.firstName).toEqual('Scarlett');
+      expect(user1.lastName).toEqual('Silverstein');
+      expect(user1.email).toEqual('scarlett@gmail.com');
+      expect(user1.friends).toEqual([]);
+      expect(user1.isOnline).toEqual(true);
+      expect(user1.location).toEqual('');
+
+      await apiClient.deleteUser({ email: 'scarlett@gmail.com' });
+    });
+
+    it('allows for multiple users with the same first and last names as long as email is dif', async () => {
+      const user1: TestUserData = {
+        firstName: 'Scarlett',
+        lastName: 'Silverstein',
+        email: 'scarlettEmail1@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
       };
 
       const user2: TestUserData = {
-        firstName: 'Kristen',
-        lastName: 'Hyman',
-        email: 'kristenhyman1@gmail.com',
-        friends: ['hyman.kristen@gmail.com'],
+        firstName: 'Scarlett',
+        lastName: 'Silverstein',
+        email: 'scarlettEmail2@gmail.com',
+        friends: [],
         isOnline: true,
-        location: 'Boston',
+        location: '',
       };
+
       await apiClient.addUser({ user: user1 });
       await apiClient.addUser({ user: user2 });
 
-      expect(await apiClient.userExistence({ email: user1.email })).toBe(true);
-      expect(await apiClient.userExistence({ email: user2.email })).toBe(true);
-      
-      // make sure to delete users after test
+      expect(await apiClient.userExistence({ email: 'scarlettEmail1@gmail.com' })).toBe(true);
+      expect(await apiClient.userExistence({ email: 'scarlettEmail2@gmail.com' })).toBe(true);
+
+      await apiClient.deleteUser({ email: 'scarlettEmail1@gmail.com' });
+      await apiClient.deleteUser({ email: 'scarlettEmail2@gmail.com' });
+
     });
 
-
-    it('Prohibits a blank username/email', async () => {
-      try {
-        const user1: TestUserData = {
-          firstName: 'Kristen',
-          lastName: 'Hyman',
-          email: '',
-          friends: ['hyman.jessica@gmail.com'],
-          isOnline: true,
-          location: 'Austin',
-        };
-
-        await apiClient.addUser({ user: user1 });
-        fail('addUser should throw an error if email is empty string');
-      } catch (err) {
-        // OK
-      }
-    });
   });
 
-  describe('CoveyMemberAPI', () => {
-    it('Throws an error if the added friend does not exist', async () => {
+  describe('DatabaseServiceUserExistenceAPI', () => {
+
+    it('adding a nonexisting user to empty friendlist does not work', async () => {
+
       const user1: TestUserData = {
-        firstName: 'Kristen',
-        lastName: 'Hyman',
-        email: 'hyman.kristen@gmail.com',
-        friends: ['hyman.jessica@gmail.com'],
+        firstName: 'Scarlett',
+        lastName: 'Silverstein',
+        email: 'scarlett@gmail.com',
+        friends: [],
         isOnline: true,
-        location: 'Austin',
+        location: '',
       };
 
       await apiClient.addUser({ user: user1 });
-      console.log('recieving..',await apiClient.addFriend({ email: user1.email, friendEmail: 'nonexistent' }));
-      expect(await apiClient.addFriend({ email: user1.email, friendEmail: 'nonexistent' })).toBe( {
-        isOK: true,
-        response: {},
-        message:
-          'friend not added: either they are not in the database or they are already in your lists.',
-      });
+
+      await apiClient.addFriend({ email: 'scarlett@gmail.com', friendEmail: 'fakeEmailForTesting' });
+
+      expect(user1.friends.length).toBe(0);
+      expect(user1.friends).not.toContain('fakeEmailForTesting');
+
+      await apiClient.deleteUser({ email: 'scarlett@gmail.com' });
     });
+
+    it('adding a nonexisting user to non empty friendlist does not work', async () => {
+      const user1: TestUserData = {
+        firstName: 'Scarlett',
+        lastName: 'Silverstein',
+        email: 'scarlett@gmail.com',
+        friends: ['onefriend@gmail.com'],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addFriend({ email: 'scarlett@gmail.com', friendEmail: 'fakeEmailForTesting' });
+
+      expect(user1.friends.length).toBe(1);
+      expect(user1.friends).not.toContain('fakeEmailForTesting');
+
+      await apiClient.deleteUser({ email: 'scarlett@gmail.com' });
+
+    });
+
+    it('user that is not in database when queried w/ userExistence should return false', async () => {
+
+      expect(await apiClient.userExistence({ email: 'fakeEmailNotInDB@gmail.com' })).toBe(false);
+
+    });
+
+
+    it('after deletion, userExistence for deleted user should return false', async () => {
+
+      const user1: TestUserData = {
+        firstName: 'Sprout',
+        lastName: 'Silverstein',
+        email: 'dogsrock@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      expect(await apiClient.userExistence({ email: 'dogsrock@gmail.com' })).toBe(true);
+
+
+      await apiClient.deleteUser({ email: 'dogsrock@gmail.com' });
+      expect(await apiClient.userExistence({ email: 'dogsrock@gmail.com' })).toBe(false);
+
+    });
+
+    it('after adding, userExistence should return true', async () => {
+
+      const user1: TestUserData = {
+        firstName: 'Sprout',
+        lastName: 'Silverstein',
+        email: 'dogsrock@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      expect(await apiClient.userExistence({ email: 'dogsrock@gmail.com' })).toBe(true);
+      await apiClient.deleteUser({ email: 'dogsrock@gmail.com' });
+
+    });
+
   });
+
 });

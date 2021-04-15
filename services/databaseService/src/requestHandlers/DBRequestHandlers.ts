@@ -58,7 +58,7 @@ export interface RemoveFriendRequest {
 export default class MongoClientFactory {
   // private uri = process.env.REACT_APP_MONGODB_URI || '';
   private uri =
-    'mongodb+srv://dbUser:dbUserPassword@cluster0.rdokz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+  'mongodb+srv://dbUser:dbUserPassword@cluster0.rdokz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 
   private static _instance: MongoClientFactory;
 
