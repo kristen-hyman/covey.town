@@ -209,13 +209,10 @@ describe('TownsServiceAPIREST', () => {
       };
 
       await apiClient.addUser({ user: newUser }); 
+      expect(await apiClient.getUserLocation({ email: newUser.email })).toBe('');
       await apiClient.setUserLocation({ email: newUser.email, location: 'EAC9273X' });
       expect(await apiClient.getUserLocation({ email: newUser.email })).toBe('EAC9273X');
       await apiClient.deleteUser({ email: newUser.email });
     });
-
-
-
-
   });
 });
