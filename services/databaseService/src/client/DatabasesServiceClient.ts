@@ -153,6 +153,13 @@ export default class DatabaseServiceClient {
     return DatabaseServiceClient.unwrapOrThrowError(responseWrapper, true);
   }
 
+  async getUserLocation(requestData: UserEmailRequest): Promise<string> {
+    const responseWrapper = await this._axios.get<ResponseEnvelope<string>>(
+      `/users/${requestData.email}/location`,
+    );
+    return DatabaseServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
   async deleteUser(requestData: UserEmailRequest): Promise<Record<string, null>> {
     const responseWrapper = await this._axios.delete<ResponseEnvelope<Record<string, null>>>(
       `/users/${requestData.email}`,

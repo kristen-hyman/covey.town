@@ -35,133 +35,187 @@ describe('TownsServiceAPIREST', () => {
   });
 
 
-  describe('CoveyTownStatusAPI', () => {
-    it('Signing online changes a user\'s status to true', async () => {
-      // First time user
-      const loginUser: TestUserData = {
-        firstName: 'Jane',
-        lastName: 'Doe',
-        email: 'doe.j@gmail.com',
+  describe('DatabaseServiceOnlineStatusAPI', () => {
+    it('Read the correct online status of a user I', async () => {
+      const user1: TestUserData = {
+        firstName: 'Michael',
+        lastName: 'Jordan',
+        email: 'michaeljordan@gmail.com',
         friends: [],
         isOnline: true,
         location: '',
       };
-      await apiClient.addUser({ user: loginUser }); // adds a new entry to db and sets user online
-      expect(await apiClient.getOnlineStatus({ email: loginUser.email })).toBe(true); // checks that user is online
 
-      // Returning user
-      await apiClient.setOnlineStatus({ email: loginUser.email, isOnline: false }); // user going offline
-      expect(await apiClient.getOnlineStatus({ email: loginUser.email })).toBe(false); // checks that user is offline
-      await apiClient.setOnlineStatus({ email: loginUser.email, isOnline: true }); // user going back online
-      expect(await apiClient.getOnlineStatus({ email: loginUser.email })).toBe(true); // checks that user is online
-
-      await apiClient.deleteUser({ email: loginUser.email }); // delete user after test
+      await apiClient.addUser({ user: user1 });
+      expect(await apiClient.getOnlineStatus({ email: user1.email })).toBe(true);
+      await apiClient.deleteUser({ email: user1.email });
     });
 
-    it('Signing offline changes a user\'s status to false', async () => {
-      // First time user
-      const loginUser: TestUserData = {
-        firstName: 'Jane',
-        lastName: 'Doe',
-        email: 'doe.j@gmail.com',
+    it('Read the correct offline status of a user II', async () => {
+      const user2: TestUserData = {
+        firstName: 'Lebron',
+        lastName: 'James',
+        email: 'lebronjames@gmail.com',
+        friends: [],
+        isOnline: false,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user2 });
+      expect(await apiClient.getOnlineStatus({ email: user2.email })).toBe(false);
+      await apiClient.deleteUser({ email: user2.email });
+    });
+
+    it('Read the most updated status of a user I', async () => {
+      const user1: TestUserData = {
+        firstName: 'Michael',
+        lastName: 'Jordan',
+        email: 'michaeljordan@gmail.com',
         friends: [],
         isOnline: true,
         location: '',
       };
-      await apiClient.addUser({ user: loginUser }); // adds a new entry to db and sets user online
-      expect(await apiClient.getOnlineStatus({ email: loginUser.email })).toBe(true); // checks that user is online
-      await apiClient.setOnlineStatus({ email: loginUser.email, isOnline: false }); // user going offline
-      expect(await apiClient.getOnlineStatus({ email: loginUser.email })).toBe(false); // checks that user is offline
-
-      // Returning user
-      await apiClient.setOnlineStatus({ email: loginUser.email, isOnline: true }); // user going online
-      expect(await apiClient.getOnlineStatus({ email: loginUser.email })).toBe(true); // checks that user is online
-      await apiClient.setOnlineStatus({ email: loginUser.email, isOnline: false }); // user going back offline
-      expect(await apiClient.getOnlineStatus({ email: loginUser.email })).toBe(false); // checks that user is offline
-
-      await apiClient.deleteUser({ email: loginUser.email }); // delete user after test
+  
+      user1.isOnline = false;
+      await apiClient.addUser({ user: user1 });
+      expect(await apiClient.getOnlineStatus({ email: user1.email })).toBe(false);
+      await apiClient.deleteUser({ email: user1.email });
     });
 
-    it('Signing online changes a user\'s status to online in the friend list of other users', async () => {
-    
+    it('Read the most updated status of a user II', async () => {
+      const user2: TestUserData = {
+        firstName: 'Lebron',
+        lastName: 'James',
+        email: 'lebronjames@gmail.com',
+        friends: [],
+        isOnline: false,
+        location: '',
+      };
+
+      user2.isOnline = true;
+      await apiClient.addUser({ user: user2 });
+      expect(await apiClient.getOnlineStatus({ email: user2.email })).toBe(true);
+      await apiClient.deleteUser({ email: user2.email });
     });
 
-    it('Signing offline changes a user\'s status to offline in the friend list of other users', async () => {
-    
+
+    it('Setting an online status when a user is online makes no changes', async () => {
+      const user1: TestUserData = {
+        firstName: 'Michael',
+        lastName: 'Jordan',
+        email: 'michaeljordan@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.setOnlineStatus({ email: user1.email, isOnline: true });
+      expect(await apiClient.getOnlineStatus({ email: user1.email })).toBe(true);
+      await apiClient.deleteUser({ email: user1.email });
+    });
+
+    it('Setting an offline status when a user is offline makes no changes', async () => {
+      const user2: TestUserData = {
+        firstName: 'Lebron',
+        lastName: 'James',
+        email: 'lebronjames@gmail.com',
+        friends: [],
+        isOnline: false,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user2 });
+      await apiClient.setOnlineStatus({ email: user2.email, isOnline: false });
+      expect(await apiClient.getOnlineStatus({ email: user2.email })).toBe(false);
+      await apiClient.deleteUser({ email: user2.email });
+    });
+
+    it('Read the correct status of users after a change I', async () => {
+      const user1: TestUserData = {
+        firstName: 'Michael',
+        lastName: 'Jordan',
+        email: 'michaeljordan@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.setOnlineStatus({ email: user1.email, isOnline: false });
+      expect(await apiClient.getOnlineStatus({ email: user1.email })).toBe(false);
+      await apiClient.deleteUser({ email: user1.email });
+    });
+
+    it('Read the correct status of users after a change II', async () => {
+      const user2: TestUserData = {
+        firstName: 'Lebron',
+        lastName: 'James',
+        email: 'lebronjames@gmail.com',
+        friends: [],
+        isOnline: false,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user2 });
+      await apiClient.setOnlineStatus({ email: user2.email, isOnline: true });
+      expect(await apiClient.getOnlineStatus({ email: user2.email })).toBe(true);
+      await apiClient.deleteUser({ email: user2.email });
     });
   });
 
 
 
+  describe('DatabaseServiceUserLocationAPI', () => {
+    it('See location when user signs in', async () => {
+      const newUser: TestUserData = {
+        firstName: 'Kobe',
+        lastName: 'Bryant',
+        email: 'kobebryant@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      await apiClient.addUser({ user: newUser }); 
+      expect(newUser.location).toBe('Lobby');
+      await apiClient.deleteUser({ email: newUser.email }); 
+    });
+
+    it('See most updated location when user signs in', async () => {
+      const newUser: TestUserData = {
+        firstName: 'Kobe',
+        lastName: 'Bryant',
+        email: 'kobebryant@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      newUser.location = 'Lobby'; 
+      await apiClient.addUser({ user: newUser }); 
+      expect(newUser.location).toBe('Lobby');
+      await apiClient.deleteUser({ email: newUser.email }); 
+    });
+
+    it('Location update works when user is login', async () => {
+      const newUser: TestUserData = {
+        firstName: 'Kobe',
+        lastName: 'Bryant',
+        email: 'kobebryant@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: newUser }); 
+      await apiClient.setUserLocation({ email: newUser.email, location: 'EAC9273X' });
+      expect(await apiClient.getUserLocation({ email: newUser.email })).toBe('EAC9273X');
+      await apiClient.deleteUser({ email: newUser.email });
+    });
 
 
-  // describe('CoveyTownCreateAPI', () => {
-  //   it('Allows for multiple users with the same first and last names as long as email is dif', async () => {
-  //     const user1: TestUserData = {
-  //       firstName: 'Kristen',
-  //       lastName: 'Hyman',
-  //       email: 'hyman.kristen@gmail.com',
-  //       friends: ['hyman.jessica@gmail.com'],
-  //       isOnline: true,
-  //       location: 'Austin',
-  //     };
-
-  //     const user2: TestUserData = {
-  //       firstName: 'Kristen',
-  //       lastName: 'Hyman',
-  //       email: 'kristenhyman1@gmail.com',
-  //       friends: ['hyman.kristen@gmail.com'],
-  //       isOnline: true,
-  //       location: 'Boston',
-  //     };
-  //     await apiClient.addUser({ user: user1 });
-  //     await apiClient.addUser({ user: user2 });
-
-  //     expect(await apiClient.userExistence({ email: user1.email })).toBe(true);
-  //     expect(await apiClient.userExistence({ email: user2.email })).toBe(true);
-      
-  //     // make sure to delete users after test
-  //   });
 
 
-  //   it('Prohibits a blank username/email', async () => {
-  //     try {
-  //       const user1: TestUserData = {
-  //         firstName: 'Kristen',
-  //         lastName: 'Hyman',
-  //         email: '',
-  //         friends: ['hyman.jessica@gmail.com'],
-  //         isOnline: true,
-  //         location: 'Austin',
-  //       };
-
-  //       await apiClient.addUser({ user: user1 });
-  //       fail('addUser should throw an error if email is empty string');
-  //     } catch (err) {
-  //       // OK
-  //     }
-  //   });
-  // });
-
-  // describe('CoveyMemberAPI', () => {
-  //   it('Throws an error if the added friend does not exist', async () => {
-  //     const user1: TestUserData = {
-  //       firstName: 'Kristen',
-  //       lastName: 'Hyman',
-  //       email: 'hyman.kristen@gmail.com',
-  //       friends: ['hyman.jessica@gmail.com'],
-  //       isOnline: true,
-  //       location: 'Austin',
-  //     };
-
-  //     await apiClient.addUser({ user: user1 });
-  //     // console.log('recieving..',await apiClient.addFriend({ email: user1.email, friendEmail: 'nonexistent' }));
-  //     expect(await apiClient.addFriend({ email: user1.email, friendEmail: 'nonexistent' })).toBe( {
-  //       isOK: true,
-  //       response: {},
-  //       message:
-  //         'friend not added: either they are not in the database or they are already in your lists.',
-  //     });
-  //   });
-  // });
+  });
 });

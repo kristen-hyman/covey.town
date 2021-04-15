@@ -138,6 +138,21 @@ export async function getStatusHandler(
   };
 }
 
+export async function getLocationHandler(
+  requestData: UserEmailRequest,
+): Promise<ResponseEnvelope<string>> {
+  const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
+  const user = await client
+    .db(DB_NAME)
+    .collection(COLLECTION_NAME)
+    .findOne({ email: requestData.email });
+  client.close();
+  return {
+    isOK: true,
+    response: user.location,
+  };
+}
+
 export async function setStatusHandler(
   requestData: StatusChangeRequest,
 ): Promise<ResponseEnvelope<Record<string, null>>> {
