@@ -334,5 +334,33 @@ describe('TownsServiceAPIREST', () => {
   
       expect(sizeAfterDelete).toEqual(0);
     });
+    it('delete a user from DB, make sure they are deleted from all friendlists they are on', async () => {
+      const user1: TestUserData = {
+        firstName: 'Will',
+        lastName: 'Delete',
+        email: 'willdelete@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+  
+      const user2: TestUserData = {
+        firstName: 'Lonely',
+        lastName: 'Boi2',
+        email: 'lonelyboi2@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+  
+  
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addFriend({ email: user1.email, friendEmail: user2.email });
+      await apiClient.deleteUser({ email: user2.email });
+      const addFriendResult = await apiClient.getFriends({ email: user1.email });
+      const sizeAfterDelete = addFriendResult.length;
+      expect(sizeAfterDelete).toEqual(0);
+    });
   });
 });

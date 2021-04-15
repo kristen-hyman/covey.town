@@ -228,6 +228,18 @@ export async function addUserHandler(
   };
 }
 
+export async function deleteUser(
+  requestData: UserEmailRequest,
+): Promise<ResponseEnvelope<Record<string, null>>> {
+  const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
+  await client.db(DB_NAME).collection(COLLECTION_NAME).deleteOne({ email: requestData.email });
+  client.close();
+  return {
+    isOK: true,
+    message: 'User deleted',
+  };
+}
+
 export async function removeFriendHandler(
   requestData: RemoveFriendRequest,
 ): Promise<ResponseEnvelope<Record<string, null>>> {
