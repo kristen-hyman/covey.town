@@ -67,14 +67,16 @@ For deployment to Heroku and Netlify, utilize the steps outlined in the [followi
 
 ## Set Up Github Actions
 - Follow all steps in the activity linked above.
-- In step 2, in the `.github/workflows/main.yml` file, add additional steps to the build-and-test section. The fully updated build-and-test section in the main.yml file is shown below:![image](https://user-images.githubusercontent.com/33691856/115054598-67ecc380-9eae-11eb-8874-f1ff5cafd1e9.png)
+- In step 2, in the `.github/workflows/main.yml` file, add additional steps to the build-and-test section. The fully updated build-and-test section in the main.yml file is shown below:
+![image](https://user-images.githubusercontent.com/33691856/115055060-fc572600-9eae-11eb-926c-9ab23bb8a7ba.png)
+
 
 ## Set Up Heroku
 - Follow all steps in the activity linked above.
 - After completing this section, use the same steps to create a second Heroku app. Name the second app ‘covey-town-database’.
 - Return to the GitHub Settings -> Secrets pane and add a new secret HEROKU_APP_NAME_DB and set to the name to ‘covey-town-database’.
 - In the `.github/workflows/main.yml` file, add additional steps to the deploy section for the scond Heroku app. The fully updated deploy section in the main.yml file is shown below:
-![image](https://user-images.githubusercontent.com/33691856/115054794-a4b8ba80-9eae-11eb-9e5a-8715a2558ef6.png)
+- ![image](https://user-images.githubusercontent.com/33691856/115055115-109b2300-9eaf-11eb-8868-865234416480.png)
 
 ## Set Up Netlify
 - Follow all steps in the activity linked above. 
