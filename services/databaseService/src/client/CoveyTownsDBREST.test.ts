@@ -14,7 +14,13 @@ type TestUserData = {
   location: string;
 };
 
-describe('TownsServiceAPIREST', () => {
+export interface TestUserInfo {
+  email: string;
+  isOnline: boolean;
+  location: string;
+}
+
+describe('DatabaseServiceTest', () => {
   let server: http.Server;
   let apiClient: DatabaseServiceClient;
 
@@ -24,107 +30,653 @@ describe('TownsServiceAPIREST', () => {
     server = http.createServer(app);
 
     addDBRoutes(server, app);
-    await server.listen();
+    server.listen();
     const address = server.address() as AddressInfo;
 
     apiClient = new DatabaseServiceClient(`http://127.0.0.1:${address.port}`);
   });
 
   afterAll(async () => {
-    await server.close();
+    server.close();
   });
-  describe('CoveyTownCreateAPI', () => {
-    it('Allows for multiple users with the same first and last names as long as email is dif', async () => {
+  describe('DatabaseServiceGetFriendsAPI', () => {
+    it('gets an empty list if the user has been just created and/or has no friends yet', async () => {
       const user1: TestUserData = {
-        firstName: 'Kristen',
-        lastName: 'Hyman',
-        email: 'hyman.kristen@gmail.com',
-        friends: ['hyman.jessica@gmail.com'],
+        firstName: 'Whodis',
+        lastName: 'Whodis',
+        email: 'whodis1@gmail.com',
+        friends: [],
         isOnline: true,
-        location: 'Austin',
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+
+      expect(await apiClient.getFriends({ email: 'whodis1@gmail.com' })).toStrictEqual([]);
+      await apiClient.deleteUser({ email: 'whodis1@gmail.com' });
+    });
+
+    it('gets a list of friends if the user has friends', async () => {
+      const user1: TestUserData = {
+        firstName: 'Whodis',
+        lastName: 'Whodis',
+        email: 'whodis@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      const user2: TestUserData = {
+        firstName: 'jabreakit',
+        lastName: 'jubawdit',
+        email: 'jabreakit.jubawdit@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      const user3: TestUserData = {
+        firstName: 'jabreakit',
+        lastName: 'jubawdit2',
+        email: 'jabreakit.jubawdit2@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addUser({ user: user3 });
+      await apiClient.addFriend({
+        email: 'whodis@gmail.com',
+        friendEmail: 'jabreakit.jubawdit@gmail.com',
+      });
+      let friends: TestUserInfo[] = await apiClient.getFriends({ email: 'whodis@gmail.com' });
+      expect(friends).toContainEqual({
+        email: 'jabreakit.jubawdit@gmail.com',
+        isOnline: true,
+        location: '',
+      });
+
+      await apiClient.addFriend({
+        email: 'whodis@gmail.com',
+        friendEmail: 'jabreakit.jubawdit2@gmail.com',
+      });
+
+      friends = await apiClient.getFriends({ email: 'whodis@gmail.com' });
+      expect(friends).toContainEqual({
+        email: 'jabreakit.jubawdit@gmail.com',
+        isOnline: true,
+        location: '',
+      });
+      expect(friends).toContainEqual({
+        email: 'jabreakit.jubawdit2@gmail.com',
+        isOnline: true,
+        location: '',
+      });
+
+      apiClient.deleteUser({ email: 'whodis@gmail.com' });
+      apiClient.deleteUser({ email: 'jabreakit.jubawdit2@gmail.com' });
+      apiClient.deleteUser({ email: 'jabreakit.jubawdit@gmail.com' });
+    });
+
+    it('throws an error when getting friends for a user that does not exist.', async () => {
+      await expect(apiClient.getFriends({ email: 'someonenotonthedatabase' })).rejects.toThrowError(
+        'Error processing request: User with that email does not exist',
+      );
+    });
+  });
+
+  describe('DatabaseServiceDeleteFriendsAPI', () => {
+    it('deletes a friend from a users friend list', async () => {
+      const user1: TestUserData = {
+        firstName: 'Whodis',
+        lastName: 'Whodis',
+        email: 'whodis@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      const user2: TestUserData = {
+        firstName: 'jabreakit',
+        lastName: 'jubawdit',
+        email: 'jabreakit.jubawdit@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addFriend({
+        email: 'whodis@gmail.com',
+        friendEmail: 'jabreakit.jubawdit@gmail.com',
+      });
+
+      let friends: TestUserInfo[] = await apiClient.getFriends({ email: 'whodis@gmail.com' });
+      expect(friends).toContainEqual({
+        email: 'jabreakit.jubawdit@gmail.com',
+        isOnline: true,
+        location: '',
+      });
+
+      await apiClient.deleteFriend({
+        email: 'whodis@gmail.com',
+        friendEmail: 'jabreakit.jubawdit@gmail.com',
+      });
+      friends = await apiClient.getFriends({ email: 'whodis@gmail.com' });
+
+      expect(friends.length).toBe(0);
+      apiClient.deleteUser({ email: 'jabreakit.jubawdit@gmail.com' });
+      apiClient.deleteUser({ email: 'whodis@gmail.com' });
+    });
+  });
+
+  describe('DatabaseServiceAddUserAPI', () => {
+    it('adding a user to database with all appropriate parameters works', async () => {
+      const user1: TestUserData = {
+        firstName: 'Scarlett',
+        lastName: 'Silverstein',
+        email: 'scarlett@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+
+      expect(await apiClient.userExistence({ email: 'scarlett@gmail.com' })).toBe(true);
+
+      expect(user1.firstName).toEqual('Scarlett');
+      expect(user1.lastName).toEqual('Silverstein');
+      expect(user1.email).toEqual('scarlett@gmail.com');
+      expect(user1.friends).toEqual([]);
+      expect(user1.isOnline).toEqual(true);
+      expect(user1.location).toEqual('');
+
+      await apiClient.deleteUser({ email: 'scarlett@gmail.com' });
+    });
+
+    it('allows for multiple users with the same first and last names as long as email is dif', async () => {
+      const user1: TestUserData = {
+        firstName: 'Scarlett',
+        lastName: 'Silverstein',
+        email: 'scarlettEmail1@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      const user2: TestUserData = {
+        firstName: 'Scarlett',
+        lastName: 'Silverstein',
+        email: 'scarlettEmail2@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+
+      expect(await apiClient.userExistence({ email: 'scarlettEmail1@gmail.com' })).toBe(true);
+      expect(await apiClient.userExistence({ email: 'scarlettEmail2@gmail.com' })).toBe(true);
+
+      await apiClient.deleteUser({ email: 'scarlettEmail1@gmail.com' });
+      await apiClient.deleteUser({ email: 'scarlettEmail2@gmail.com' });
+    });
+  });
+  describe('DatabaseServiceUserExistenceAPI', () => {
+    it('adding a nonexisting user to empty friendlist does not work', async () => {
+      const user1: TestUserData = {
+        firstName: 'Scarlett',
+        lastName: 'Silverstein',
+        email: 'scarlett@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+
+      await apiClient.addFriend({
+        email: 'scarlett@gmail.com',
+        friendEmail: 'fakeEmailForTesting',
+      });
+
+      expect(user1.friends.length).toBe(0);
+      expect(user1.friends).not.toContain('fakeEmailForTesting');
+
+      await apiClient.deleteUser({ email: 'scarlett@gmail.com' });
+    });
+
+    it('adding a nonexisting user to non empty friendlist does not work', async () => {
+      const user1: TestUserData = {
+        firstName: 'Scarlett',
+        lastName: 'Silverstein',
+        email: 'scarlett@gmail.com',
+        friends: ['onefriend@gmail.com'],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addFriend({
+        email: 'scarlett@gmail.com',
+        friendEmail: 'fakeEmailForTesting',
+      });
+
+      expect(user1.friends.length).toBe(1);
+      expect(user1.friends).not.toContain('fakeEmailForTesting');
+
+      await apiClient.deleteUser({ email: 'scarlett@gmail.com' });
+    });
+
+    it('user that is not in database when queried w/ userExistence should return false', async () => {
+      expect(await apiClient.userExistence({ email: 'fakeEmailNotInDB@gmail.com' })).toBe(false);
+    });
+
+    it('after deletion, userExistence for deleted user should return false', async () => {
+      const user1: TestUserData = {
+        firstName: 'Sprout',
+        lastName: 'Silverstein',
+        email: 'dogsrock@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      expect(await apiClient.userExistence({ email: 'dogsrock@gmail.com' })).toBe(true);
+
+      await apiClient.deleteUser({ email: 'dogsrock@gmail.com' });
+      expect(await apiClient.userExistence({ email: 'dogsrock@gmail.com' })).toBe(false);
+    });
+
+    it('after adding, userExistence should return true', async () => {
+      const user1: TestUserData = {
+        firstName: 'Sprout',
+        lastName: 'Silverstein',
+        email: 'dogsrock@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      expect(await apiClient.userExistence({ email: 'dogsrock@gmail.com' })).toBe(true);
+      await apiClient.deleteUser({ email: 'dogsrock@gmail.com' });
+    });
+  });
+
+  describe('CoveyFriendsAPI', () => {
+    it('adding an existing user to empty friendlist works', async () => {
+      const user1: TestUserData = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
       };
 
       const user2: TestUserData = {
-        firstName: 'Kristen',
-        lastName: 'Hyman',
-        email: 'kristenhyman1@gmail.com',
-        friends: ['hyman.kristen@gmail.com'],
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'janedoe@gmail.com',
+        friends: [],
         isOnline: true,
-        location: 'Boston',
+        location: 'Lobby',
       };
 
-      expect(user1.email).not.toBe(user2.email);
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addFriend({ email: user1.email, friendEmail: user2.email });
+      const addFriendResult = await apiClient.getFriends({ email: user1.email });
+      expect(addFriendResult).toContainEqual({
+        email: user2.email,
+        isOnline: user2.isOnline,
+        location: user2.location,
+      });
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
     });
-
-    it('Prohibits a blank username/email', async () => {
-      try {
-        const user1: TestUserData = {
-          firstName: 'Kristen',
-          lastName: 'Hyman',
-          email: '',
-          friends: ['hyman.jessica@gmail.com'],
-          isOnline: true,
-          location: 'Austin',
-        };
-
-        await apiClient.addUser({ user: user1 });
-        fail('addUser should throw an error if email is empty string');
-      } catch (err) {
-        // OK
-      }
-    });
-  });
-
-  describe('CoveyMemberAPI', () => {
-    it('Throws an error if the added friend does not exist', async () => {
+    it('adding an existing user to a non-empty friendlist works', async () => {
       const user1: TestUserData = {
-        firstName: 'Kristen',
-        lastName: 'Hyman',
-        email: 'hyman.kristen@gmail.com',
-        friends: ['hyman.jessica@gmail.com'],
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@gmail.com',
+        friends: [],
         isOnline: true,
-        location: 'Austin',
+        location: 'Lobby',
       };
 
-      try {
-        await apiClient.addUser({ user: user1 });
-        await apiClient.addFriend({ email: user1.email, friendEmail: 'nonexistent' });
-        fail('Expected an error to be thrown by addUser but none thrown');
-      } catch (err) {
-        // OK, expected an error
-      }
+      const user2: TestUserData = {
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'janedoe@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      const user3: TestUserData = {
+        firstName: 'Lewis',
+        lastName: 'Hamilton',
+        email: 'lewishamilton@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addUser({ user: user3 });
+      await apiClient.addFriend({ email: user1.email, friendEmail: user2.email });
+      await apiClient.addFriend({ email: user1.email, friendEmail: user3.email });
+
+      const addFriendResult = await apiClient.getFriends({ email: user1.email });
+      expect(addFriendResult).toContainEqual({
+        email: user3.email,
+        isOnline: user3.isOnline,
+        location: user3.location,
+      });
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
+      await apiClient.deleteUser({ email: user3.email });
+    });
+    it('if you add the same friend to your list more than once it does not duplicate on the list', async () => {
+      const user1: TestUserData = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      const user2: TestUserData = {
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'janedoe@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addFriend({ email: user1.email, friendEmail: user2.email });
+      const addFriendResult = await apiClient.getFriends({ email: user1.email });
+      const sizeAfterOneAdd = addFriendResult.length;
+
+      await apiClient.addFriend({ email: user1.email, friendEmail: user2.email });
+      const addFriendAgainResult = await apiClient.getFriends({ email: user1.email });
+      const sizeAfterSecondAdd = addFriendAgainResult.length;
+
+      expect(sizeAfterOneAdd).toEqual(sizeAfterSecondAdd);
+
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
+    });
+    it('delete a friend from a users friendlist, make sure friendlist updates', async () => {
+      const user1: TestUserData = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      const user2: TestUserData = {
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'janedoe@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addFriend({ email: user1.email, friendEmail: user2.email });
+      await apiClient.deleteFriend({ email: user1.email, friendEmail: user2.email });
+      const friendsListAfterDelete = await apiClient.getFriends({ email: user1.email });
+
+      expect(friendsListAfterDelete).not.toContainEqual({
+        email: user2.email,
+        isOnline: user2.isOnline,
+        location: user2.location,
+      });
+
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
+    });
+    it('delete an existing user from empty friendlist, check that nothing happens', async () => {
+      const user1: TestUserData = {
+        firstName: 'Friendless',
+        lastName: 'User',
+        email: 'friendlessuser@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      const user2: TestUserData = {
+        firstName: 'Lonely',
+        lastName: 'Boi',
+        email: 'lonelyboi@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.deleteFriend({ email: user1.email, friendEmail: user2.email });
+      const addFriendResult = await apiClient.getFriends({ email: user1.email });
+      const sizeAfterDelete = addFriendResult.length;
+
+      expect(sizeAfterDelete).toEqual(0);
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
+    });
+    it('delete a user from DB, make sure they are deleted from all friendlists they are on', async () => {
+      const user1: TestUserData = {
+        firstName: 'Will',
+        lastName: 'Delete',
+        email: 'willdelete@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      const user2: TestUserData = {
+        firstName: 'Lonely',
+        lastName: 'Boi2',
+        email: 'lonelyboi2@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.addUser({ user: user2 });
+      await apiClient.addFriend({ email: user1.email, friendEmail: user2.email });
+      await apiClient.deleteUser({ email: user2.email });
+      const addFriendResult = await apiClient.getFriends({ email: user1.email });
+      const sizeAfterDelete1 = addFriendResult.length;
+      expect(sizeAfterDelete1).toEqual(0);
+
+      await apiClient.deleteUser({ email: user1.email });
+      await apiClient.deleteUser({ email: user2.email });
     });
   });
 
-  /**
-   * Testing:
-   *
-   * Adding User to DB
-   * adding a user to database with all appropriate parameters works
-   * adding a user to database with empty username does not work
-   *
-   * Adding Users to FriendList:
-   * adding an existing user to empty friendlist works
-   * adding an existing user to non empty friendlist works
-   *
-   * adding an nonexisting user to empty friendlist does not work
-   * adding a nonexisting user to non empty friendlist does not work
-   *
-   * Signing online
-   * signing online changes a users status to true
-   * signing offline changes a users status to offline
-   * signing offline changes a users status to offline for people who have them as friends on their friendlists
-   * signing online changes a users status to offline for people who have them as friends on their friendlists
-   *
-   * Querying friendlist
-   * querying a users's friends will show all their added friends
-   * add a friend to friendlist with mulitple friends in it, check that friendlist updates
-   * delete a friend from friendlist with mulitple friends in it, check that friendlist updates
-   * do nothing to friendlist, make sure it stays the same with no changes
-   *
-   * Deleting Users/friends
-   * delete a user from DB, make sure they are deleted from all friendlists they are on
-   * delete a friend from a users friendlist, make sure friendlist updates
-   * delete an existing user from empty friendlist, check that nothing happens
-   */
+  describe('DatabaseServiceOnlineStatusAPI', () => {
+    it('Read the correct online status of a user I', async () => {
+      const user1: TestUserData = {
+        firstName: 'Michael',
+        lastName: 'Jordan',
+        email: 'michaeljordan@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+      await apiClient.addUser({ user: user1 });
+      expect(await apiClient.getOnlineStatus({ email: user1.email })).toBe(true);
+      await apiClient.deleteUser({ email: user1.email });
+    });
+    it('Read the correct offline status of a user II', async () => {
+      const user2: TestUserData = {
+        firstName: 'Lebron',
+        lastName: 'James',
+        email: 'lebronjames@gmail.com',
+        friends: [],
+        isOnline: false,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user2 });
+      expect(await apiClient.getOnlineStatus({ email: user2.email })).toBe(false);
+      await apiClient.deleteUser({ email: user2.email });
+    });
+
+    it('Read the most updated status of a user I', async () => {
+      const user1: TestUserData = {
+        firstName: 'Michael',
+        lastName: 'Jordan',
+        email: 'michaeljordan@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      user1.isOnline = false;
+      await apiClient.addUser({ user: user1 });
+      expect(await apiClient.getOnlineStatus({ email: user1.email })).toBe(false);
+      await apiClient.deleteUser({ email: user1.email });
+    });
+    it('Read the most updated status of a user II', async () => {
+      const user2: TestUserData = {
+        firstName: 'Lebron',
+        lastName: 'James',
+        email: 'lebronjames@gmail.com',
+        friends: [],
+        isOnline: false,
+        location: '',
+      };
+
+      user2.isOnline = true;
+      await apiClient.addUser({ user: user2 });
+      expect(await apiClient.getOnlineStatus({ email: user2.email })).toBe(true);
+      await apiClient.deleteUser({ email: user2.email });
+    });
+
+    it('Setting an online status when a user is online makes no changes', async () => {
+      const user1: TestUserData = {
+        firstName: 'Michael',
+        lastName: 'Jordan',
+        email: 'michaeljordan@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.setOnlineStatus({ email: user1.email, isOnline: true });
+      expect(await apiClient.getOnlineStatus({ email: user1.email })).toBe(true);
+      await apiClient.deleteUser({ email: user1.email });
+    });
+
+    it('Setting an offline status when a user is offline makes no changes', async () => {
+      const user2: TestUserData = {
+        firstName: 'Lebron',
+        lastName: 'James',
+        email: 'lebronjames@gmail.com',
+        friends: [],
+        isOnline: false,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user2 });
+      await apiClient.setOnlineStatus({ email: user2.email, isOnline: false });
+      expect(await apiClient.getOnlineStatus({ email: user2.email })).toBe(false);
+      await apiClient.deleteUser({ email: user2.email });
+    });
+    it('Read the correct status of users after a change I', async () => {
+      const user1: TestUserData = {
+        firstName: 'Michael',
+        lastName: 'Jordan',
+        email: 'michaeljordan@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: user1 });
+      await apiClient.setOnlineStatus({ email: user1.email, isOnline: false });
+      expect(await apiClient.getOnlineStatus({ email: user1.email })).toBe(false);
+      await apiClient.deleteUser({ email: user1.email });
+    });
+
+    it('Read the correct status of users after a change II', async () => {
+      const user2: TestUserData = {
+        firstName: 'Lebron',
+        lastName: 'James',
+        email: 'lebronjames@gmail.com',
+        friends: [],
+        isOnline: false,
+        location: '',
+      };
+      await apiClient.addUser({ user: user2 });
+      await apiClient.setOnlineStatus({ email: user2.email, isOnline: true });
+      expect(await apiClient.getOnlineStatus({ email: user2.email })).toBe(true);
+      await apiClient.deleteUser({ email: user2.email });
+    });
+  });
+  describe('DatabaseServiceUserLocationAPI', () => {
+    it('See location when user signs in', async () => {
+      const newUser: TestUserData = {
+        firstName: 'Kobe',
+        lastName: 'Bryant',
+        email: 'kobebryant@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: 'Lobby',
+      };
+
+      await apiClient.addUser({ user: newUser });
+      expect(newUser.location).toBe('Lobby');
+      await apiClient.deleteUser({ email: newUser.email });
+    });
+
+    it('See most updated location when user signs in', async () => {
+      const newUser: TestUserData = {
+        firstName: 'Kobe',
+        lastName: 'Bryant',
+        email: 'kobebryant@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      newUser.location = 'Lobby';
+      await apiClient.addUser({ user: newUser });
+      expect(newUser.location).toBe('Lobby');
+      await apiClient.deleteUser({ email: newUser.email });
+    });
+
+    it('Location update works when user is login', async () => {
+      const newUser: TestUserData = {
+        firstName: 'Kobe',
+        lastName: 'Bryant',
+        email: 'kobebryant@gmail.com',
+        friends: [],
+        isOnline: true,
+        location: '',
+      };
+
+      await apiClient.addUser({ user: newUser });
+      expect(await apiClient.getUserLocation({ email: newUser.email })).toBe('');
+      await apiClient.setUserLocation({ email: newUser.email, location: 'EAC9273X' });
+      expect(await apiClient.getUserLocation({ email: newUser.email })).toBe('EAC9273X');
+      await apiClient.deleteUser({ email: newUser.email });
+    });
+  });
 });
