@@ -20,7 +20,7 @@ Running the application locally entails running the backend rooms service, the b
 
 ### Setting up the backend
 
-## Rooms Service
+#### Rooms Service
 
 To run the backend, you will need a Twilio account. Twilio provides new accounts with $15 of credit, which is more than enough to get started.
 To create an account and configure your local environment:
@@ -38,12 +38,12 @@ To create an account and configure your local environment:
 
 ### Starting the backend
 
-## Rooms Service
+#### Rooms Service
 
 Once your backend is configured, you can start it by running `npm start` in the `services/roomService` directory (the first time you run it, you will also need to run `npm install`).
 This backend service will automatically restart if you change any of the files in the `services/roomService/src` directory.
 
-## Database Service
+#### Database Service
 
 You can start the database service by running `npm start` in the `services/databaseService` directory (the first time you run it, you will also need to run `npm install`).
 This backend service will automatically restart if you change any of the files in the `services/databaseService/src` directory.
