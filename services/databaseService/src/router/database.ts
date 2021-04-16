@@ -9,6 +9,7 @@ import {
   deleteUser,
   getAllUsersHandler,
   getFriendsHandler,
+  getLocationHandler,
   getStatusHandler,
   removeFriendHandler,
   setLocationHandler,
@@ -150,6 +151,18 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
         email: req.params.emailID,
         friendEmail: req.params.friendEmailID,
       });
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  });
+
+  app.get('/users/:emailID/location', BodyParser.json(), async (req, res) => {
+    try {
+      const result = await getLocationHandler({ email: req.params.emailID });
       res.status(StatusCodes.OK).json(result);
     } catch (err) {
       logError(err);

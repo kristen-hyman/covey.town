@@ -263,3 +263,18 @@ export async function removeFriendHandler(
     message: 'friend removed',
   };
 }
+
+export async function getLocationHandler(
+  requestData: UserEmailRequest,
+): Promise<ResponseEnvelope<string>> {
+  const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
+  const user = await client
+    .db(DB_NAME)
+    .collection(COLLECTION_NAME)
+    .findOne({ email: requestData.email });
+  client.close();
+  return {
+    isOK: true,
+    response: user.location,
+  };
+}

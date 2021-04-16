@@ -159,4 +159,11 @@ export default class DatabaseServiceClient {
     );
     return DatabaseServiceClient.unwrapOrThrowError(responseWrapper, true);
   }
+
+  async getUserLocation(requestData: UserEmailRequest): Promise<string> {
+    const responseWrapper = await this._axios.get<ResponseEnvelope<string>>(
+      `/users/${requestData.email}/location`,
+    );
+    return DatabaseServiceClient.unwrapOrThrowError(responseWrapper);
+  }
 }
