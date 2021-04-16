@@ -30,9 +30,9 @@ We decided to use a NoSQL database over a relational database because of the eas
 
 ## CRC cards:
 
-![1](docs/1.png)
-![2](docs/2.png)
-![3](docs/3.png)
-![4](docs/4.png)
-![5](docs/5.png)
-![6](docs/6.png)
+![1](docs/loginhooks.png)
+![2](docs/logouthooks.png)
+![3](docs/dbrequesthandlers.png)
+![4](docs/database.png)
+![5](docs/user.png)
+![6](docs/databaseserviceclient.png)
