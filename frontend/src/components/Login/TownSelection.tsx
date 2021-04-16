@@ -53,8 +53,9 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   let finalUserName = userName;
 
   window.onbeforeunload = async () => {
-    await dbClient.setOnlineStatus({ email: userEmail, isOnline: false });
-    await dbClient.setUserLocation({ email: userEmail, location: "" }); 
+    dbClient.setUserLocation({ email: userEmail, location: "" }); 
+    dbClient.setOnlineStatus({ email: userEmail, isOnline: false });
+    return null;
   }
 
   const updateFriendList = useCallback(async () => {
