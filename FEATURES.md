@@ -1,14 +1,16 @@
 # Overview of features
 
-1. The features added to covey.town are as follows (these correspond to user stories):
-2. Users have the ability to log in to Covey Town using their google account. (User Story 1)
-3. The program has persistence, namely that it saves an account for you and can populate certain pieces of information that you store. (User Story 2 and User Story 3)
-4. Users can store a friends list on their account. This friends list includes people who also have an account on covey.town, and are added by the user to their list of friends. (User Story 2).
-   - The user must add friends by using their exact email address, as registered on covey.town.
-5. The friends list is presented to the user on the front end, and gives the user information about their friends including their online status and location on the site. (User Story 2)
+The features added to covey.town are as follows (these correspond to user stories):
+
+1. Users have the ability to log in to Covey Town using their google account. (User Story 1)
+2. The application has persistence, namely that it can store and retrieve certain information about a user (User Story 2 and User Story 3)
+3. Users can store a friends list on their profile. This friends list includes people who also have used covey.town with the Google sign-in, and are added by the user to their list of friends. (User Story 2).
+   - The user must add friends by using their exact email address which their friends have used to login into covey.town (with Google).
+4. The friends list is presented to the user on the front end, and gives the user information about their friends including their online status and location on the site(townID). (User Story 2)
    Users can delete friends from their friend list at any time using the trash-can icon to the right of the friend’s information.
    - All additions/deletions from friend lists are saved in between sessions. (User Story 3)
-6. All baseline functionally (creating towns, joining towns, creating private towns etc.) remains fully functional.
+   - All status updates of a users friends such as their online status and location are updated live on the front end.
+5. All baseline functionally (creating towns, joining towns, creating private towns etc.) remains fully functional as before.
 
 # User interaction with features
 
