@@ -60,7 +60,7 @@ Also add this line `REACT_APP_DATABASE_SERVICE_URL=http://localhost:8081/` (if y
 In the `frontend` directory, run `npm start` (again, you'll need to run `npm install` the very first time). After several moments (or minutes, depending on the speed of your machine), a browser will open with the frontend running locally.
 The frontend will automatically re-compile and reload in your browser if you change any files in the `frontend/src` directory.
 
-### Deploying this app to Heroku and Netlify
+## Deploying this app to Heroku and Netlify
 For deployment to Heroku and Netlify, utilize the steps outlined in the [following activity](https://neu-se.github.io/CS4530-CS5500-Spring-2021/Activities/continuous-development) and integrate the additional steps included below:
 
 ## Additional Steps (to integrate with the activity linked above)
