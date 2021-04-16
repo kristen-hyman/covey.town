@@ -13,4 +13,7 @@
 
 ## How the new features were implemented in the backend.
 
+The new architecture of the app:
+![Covey.Town Architecture](docs/arch.png)
+
 1. A new service was created, called databaseService
