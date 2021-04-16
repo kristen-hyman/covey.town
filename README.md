@@ -61,26 +61,29 @@ In the `frontend` directory, run `npm start` (again, you'll need to run `npm ins
 The frontend will automatically re-compile and reload in your browser if you change any files in the `frontend/src` directory.
 
 ## Deploying this app to Heroku and Netlify
+
 For deployment to Heroku and Netlify, utilize the steps outlined in the [following activity](https://neu-se.github.io/CS4530-CS5500-Spring-2021/Activities/continuous-development) and integrate the additional steps included below:
 
 ## Additional Steps (to integrate with the activity linked above)
 
 ### Set Up Github Actions
+
 - Follow all steps in the activity linked above.
 - In step 2, in the `.github/workflows/main.yml` file, add the following additional steps to the build-and-test section to build and test backend database service:
-     ```
-     - name: Build and test backend database service
-        run: cd services/databaseService; npm install && npm run lint && npm test
-     ```
+  ```
+  - name: Build and test backend database service
+     run: cd services/databaseService; npm install && npm run lint && npm test
+  ```
 - The fully updated build-and-test section in the main.yml file is shown below:
-![image](https://user-images.githubusercontent.com/33691856/115055060-fc572600-9eae-11eb-926c-9ab23bb8a7ba.png)
-
+  ![image](https://user-images.githubusercontent.com/33691856/115055060-fc572600-9eae-11eb-926c-9ab23bb8a7ba.png)
 
 ### Set Up Heroku
+
 - Follow all steps in the activity linked above.
 - After completing this section, use the same steps to create a second Heroku app. Name the second app ‘covey-town-database’.
 - Return to the GitHub Settings -> Secrets pane and add a new secret HEROKU_APP_NAME_DB and set to the name to ‘covey-town-database’.
 - In the `.github/workflows/main.yml` file, add the following additional steps to the deploy section for the second Heroku app:
+
 ```
       - uses: actions/checkout@v2
       - uses: akhileshns/heroku-deploy@v3.12.12 # Deploy to Heroku action
@@ -89,11 +92,25 @@ For deployment to Heroku and Netlify, utilize the steps outlined in the [followi
           heroku_app_name: ${{secrets.HEROKU_APP_NAME_DB}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
 ```
+
 - The fully updated deploy section in the main.yml file is shown below:
 - ![image](https://user-images.githubusercontent.com/33691856/115055115-109b2300-9eaf-11eb-8868-865234416480.png)
 
 ### Set Up Netlify
-- Follow all steps in the activity linked above. 
+
+- Follow all steps in the activity linked above.
 - In Step 4, within the ‘Environment’ section of the settings page, add in the REACT_APP_DATABASE_SERVICE_URL, which is the Heroku server name for the second Heroku app that was created.
 
+### Deploying the backend services
 
+- you will have to clone this repository into your system.
+- download and install [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#download-and-install)
+- login to your Heroku account where you want to deploy the backend. You must have completed the setup steps described above. To login run `heroku login` in your terminal, in the covey.town directory.
+- run the following commands in the Heroku CLI:
+  - heroku git:remote -r data-service -a covey-town-database
+  - heroku git:remote -r room-service -a covey-town-heroku
+- This binds your local’s git remote to multiple heroku apps. You can use `git remote -v` to verify you got it setup correctly.
+- You can now run these commands to deploy our services on heroku:
+  - `git push data-service`
+  - `git push room-service`
+- That's it after completing the above steps you should have both the backend services deployed.
