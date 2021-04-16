@@ -6,12 +6,14 @@ import io from 'socket.io';
 import {
   addFriendHandler,
   addUserHandler,
+  deleteUser,
   getAllUsersHandler,
   getFriendsHandler,
+  getLocationHandler,
   getStatusHandler,
   removeFriendHandler,
-  setStatusHandler,
   setLocationHandler,
+  setStatusHandler,
   userExistsHandler,
 } from '../requestHandlers/DBRequestHandlers';
 import { logError } from '../Utils';
@@ -27,8 +29,7 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
     } catch (err) {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message:
-          'Internal server error, please see log in server for more details',
+        message: 'Internal server error, please see log in server for more details',
       });
     }
   });
@@ -40,8 +41,7 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
     } catch (err) {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message:
-          'Internal server error, please see log in server for more details',
+        message: 'Internal server error, please see log in server for more details',
       });
     }
   });
@@ -53,8 +53,7 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
     } catch (err) {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message:
-          'Internal server error, please see log in server for more details',
+        message: 'Internal server error, please see log in server for more details',
       });
     }
   });
@@ -66,8 +65,7 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
     } catch (err) {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message:
-          'Internal server error, please see log in server for more details',
+        message: 'Internal server error, please see log in server for more details',
       });
     }
   });
@@ -79,8 +77,7 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
     } catch (err) {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message:
-          'Internal server error, please see log in server for more details',
+        message: 'Internal server error, please see log in server for more details',
       });
     }
   });
@@ -92,8 +89,7 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
     } catch (err) {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message:
-          'Internal server error, please see log in server for more details',
+        message: 'Internal server error, please see log in server for more details',
       });
     }
   });
@@ -105,8 +101,7 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
     } catch (err) {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message:
-          'Internal server error, please see log in server for more details',
+        message: 'Internal server error, please see log in server for more details',
       });
     }
   });
@@ -118,51 +113,64 @@ export default function addDBRoutes(http: Server, app: Express): io.Server {
     } catch (err) {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message:
-          'Internal server error, please see log in server for more details',
+        message: 'Internal server error, please see log in server for more details',
       });
     }
   });
 
-  app.post(
-    '/users/:emailID/friends/:friendEmailID',
-    BodyParser.json(),
-    async (req, res) => {
-      try {
-        const result = await addFriendHandler({
-          email: req.params.emailID,
-          friendEmail: req.params.friendEmailID,
-        });
-        res.status(StatusCodes.OK).json(result);
-      } catch (err) {
-        logError(err);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-          message:
-            'Internal server error, please see log in server for more details',
-        });
-      }
-    },
-  );
+  app.post('/users/:emailID/friends/:friendEmailID', BodyParser.json(), async (req, res) => {
+    try {
+      const result = await addFriendHandler({
+        email: req.params.emailID,
+        friendEmail: req.params.friendEmailID,
+      });
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  });
 
-  app.delete(
-    '/users/:emailID/friends/:friendEmailID',
-    BodyParser.json(),
-    async (req, res) => {
-      try {
-        const result = await removeFriendHandler({
-          email: req.params.emailID,
-          friendEmail: req.params.friendEmailID,
-        });
-        res.status(StatusCodes.OK).json(result);
-      } catch (err) {
-        logError(err);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-          message:
-            'Internal server error, please see log in server for more details',
-        });
-      }
-    },
-  );
+  app.delete('/users/:emailID', BodyParser.json(), async (req, res) => {
+    try {
+      const result = await deleteUser({ email: req.params.emailID });
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  });
+
+  app.delete('/users/:emailID/friends/:friendEmailID', BodyParser.json(), async (req, res) => {
+    try {
+      const result = await removeFriendHandler({
+        email: req.params.emailID,
+        friendEmail: req.params.friendEmailID,
+      });
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  });
+
+  app.get('/users/:emailID/location', BodyParser.json(), async (req, res) => {
+    try {
+      const result = await getLocationHandler({ email: req.params.emailID });
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  });
 
   const socketServer = new io.Server(http, { cors: { origin: '*' } });
   return socketServer;

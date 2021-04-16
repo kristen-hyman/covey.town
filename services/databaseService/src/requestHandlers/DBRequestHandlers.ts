@@ -56,8 +56,9 @@ export interface RemoveFriendRequest {
 }
 
 export default class MongoClientFactory {
-  // private uri = process.env.REACT_APP_MONGODB_URI || '';
-  private uri = 'mongodb+srv://dbUser:dbUserPassword@cluster0.rdokz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+  private uri =
+  'mongodb+srv://dbUser:dbUserPassword@cluster0.rdokz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+
 
   private static _instance: MongoClientFactory;
 
@@ -96,17 +97,26 @@ export async function getFriendsHandler(
   requestData: UserEmailRequest,
 ): Promise<ResponseEnvelope<UserInfo[]>> {
   const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
-  const user = await client
-    .db(DB_NAME)
-    .collection(COLLECTION_NAME)
-    .findOne({ email: requestData.email });
-  const { friends } = user;
-  const friendStatuses: UserInfo[] = await client
-    .db(DB_NAME)
-    .collection(COLLECTION_NAME)
-    .find({ email: { $in: friends } })
-    .project({ email: 1, isOnline: 1, location: 1, _id: 0 })
-    .toArray();
+  let friendStatuses: UserInfo[];
+  try {
+    const user = await client
+      .db(DB_NAME)
+      .collection(COLLECTION_NAME)
+      .findOne({ email: requestData.email });
+    const { friends } = user;
+    friendStatuses = await client
+      .db(DB_NAME)
+      .collection(COLLECTION_NAME)
+      .find({ email: { $in: friends } })
+      .project({ email: 1, isOnline: 1, location: 1, _id: 0 })
+      .toArray();
+  } catch (err) {
+    client.close();
+    return {
+      isOK: false,
+      message: 'User with that email does not exist',
+    };
+  }
   client.close();
   return {
     isOK: true,
@@ -228,6 +238,18 @@ export async function addUserHandler(
   };
 }
 
+export async function deleteUser(
+  requestData: UserEmailRequest,
+): Promise<ResponseEnvelope<Record<string, null>>> {
+  const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
+  await client.db(DB_NAME).collection(COLLECTION_NAME).deleteOne({ email: requestData.email });
+  client.close();
+  return {
+    isOK: true,
+    message: 'User deleted',
+  };
+}
+
 export async function removeFriendHandler(
   requestData: RemoveFriendRequest,
 ): Promise<ResponseEnvelope<Record<string, null>>> {
@@ -240,5 +262,20 @@ export async function removeFriendHandler(
   return {
     isOK: true,
     message: 'friend removed',
+  };
+}
+
+export async function getLocationHandler(
+  requestData: UserEmailRequest,
+): Promise<ResponseEnvelope<string>> {
+  const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
+  const user = await client
+    .db(DB_NAME)
+    .collection(COLLECTION_NAME)
+    .findOne({ email: requestData.email });
+  client.close();
+  return {
+    isOK: true,
+    response: user.location,
   };
 }
