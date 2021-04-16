@@ -165,4 +165,5 @@ export default class DatabaseServiceClient {
       `/users/${requestData.email}/location`,
     );
     return DatabaseServiceClient.unwrapOrThrowError(responseWrapper);
+  }
 }
