@@ -67,7 +67,8 @@ For deployment to Heroku and Netlify, utilize the steps outlined in the [followi
 
 ## Set Up Github Actions
 - Follow all steps in the activity linked above.
-- In step 2, in the `.github/workflows/main.yml` file, add additional steps to the build-and-test section. The fully updated build-and-test section in the main.yml file is shown below:
+- In step 2, in the `.github/workflows/main.yml` file, add additional steps to the build-and-test section to build and test backend database service.
+- The fully updated build-and-test section in the main.yml file is shown below:
 ![image](https://user-images.githubusercontent.com/33691856/115055060-fc572600-9eae-11eb-926c-9ab23bb8a7ba.png)
 
 
