@@ -27,3 +27,12 @@ The decision to use Google Sign in was made because it is third-party sign in op
 ### MongoDB
 
 We decided to use a NoSQL database over a relational database because of the ease of use and flexibility to store unstructured data such as a list of friends. We use a hosted cluster offered by MongoDB called [Atlas](https://www.mongodb.com/cloud/atlas).
+
+## CRC cards:
+
+![1](docs/1.png)
+![2](docs/2.png)
+![3](docs/3.png)
+![4](docs/4.png)
+![5](docs/5.png)
+![6](docs/6.png)
