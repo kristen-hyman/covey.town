@@ -59,6 +59,7 @@ export default class MongoClientFactory {
   private uri =
   'mongodb+srv://dbUser:dbUserPassword@cluster0.rdokz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 
+
   private static _instance: MongoClientFactory;
 
   static getInstance(): MongoClientFactory {
