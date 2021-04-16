@@ -59,3 +59,25 @@ Also add this line `REACT_APP_DATABASE_SERVICE_URL=http://localhost:8081/` (if y
 
 In the `frontend` directory, run `npm start` (again, you'll need to run `npm install` the very first time). After several moments (or minutes, depending on the speed of your machine), a browser will open with the frontend running locally.
 The frontend will automatically re-compile and reload in your browser if you change any files in the `frontend/src` directory.
+
+### Deploying this app to Heroku and Netlify
+For deployment to Heroku and Netlify, utilize the steps outlined in the [following activity](https://neu-se.github.io/CS4530-CS5500-Spring-2021/Activities/continuous-development) and integrate the additional steps included below:
+
+## Additional Steps (to integrate with the activity linked above)
+
+## Set Up Github Actions
+- Follow all steps in the activity linked above.
+- In step 2, in the `.github/workflows/main.yml` file, add additional steps to the build-and-test section. The fully updated build-and-test section in the main.yml file is shown below:![image](https://user-images.githubusercontent.com/33691856/115054598-67ecc380-9eae-11eb-8874-f1ff5cafd1e9.png)
+
+## Set Up Heroku
+- Follow all steps in the activity linked above.
+- After completing this section, use the same steps to create a second Heroku app. Name the second app ‘covey-town-database’.
+- Return to the GitHub Settings -> Secrets pane and add a new secret HEROKU_APP_NAME_DB and set to the name to ‘covey-town-database’.
+- In the `.github/workflows/main.yml` file, add additional steps to the deploy section for the scond Heroku app. The fully updated deploy section in the main.yml file is shown below:
+![image](https://user-images.githubusercontent.com/33691856/115054794-a4b8ba80-9eae-11eb-9e5a-8715a2558ef6.png)
+
+## Set Up Netlify
+- Follow all steps in the activity linked above. 
+- In Step 4, within the ‘Environment’ section of the settings page, add in the REACT_APP_DATABASE_SERVICE_URL, which is the Heroku server name for the second Heroku app that was created.
+
+
