@@ -1,10 +1,9 @@
 ## How the features were implemented in the frontend:
 
 1. New frontend components in `frontend/src/components/Login`:
-   - LoginHooks: implements the google sign-in button and its functionality(setting location to 'Lobby' and online status).
-   - LogoutHooks: implements the logout button on its functionality
-     (removing location and setting offline status)
-   - User: implements a singleton to keep track of user information such as their online status, email and name
+   - LoginHooks: implements the google sign-in button and its functionality (setting location to 'Lobby' and online status).
+   - LogoutHooks: implements the logout button on its functionality (removing location and setting offline status).
+   - User: implements a singleton to keep track of user information such as their online status, email and name.
 2. New frontend component in `frontend/src/classes`:
    - DatabaseServiceClient constructs a database API client that enables users to send payloads to the backend through axios in order to create/read/updated/delete data on the database.
 3. Townselection.tsx was altered in several ways:
