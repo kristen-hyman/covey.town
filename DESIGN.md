@@ -1,7 +1,7 @@
 ## How the features were implemented in the frontend:
 
 1. New frontend components in `frontend/src/components/Login`:
-   - LoginHooks: implements the google sign-in button and its functionality(setting location to Lobby and online status).
+   - LoginHooks: implements the google sign-in button and its functionality(setting location to 'Lobby' and online status).
    - LogoutHooks: implements the logout button on its functionality
      (removing location and setting offline status)
 2. Townselection.tsx was altered in several ways:
@@ -13,4 +13,15 @@
 
 The new architecture of the app can be found [here](docs/arch.png)
 
-1. A new service was created, called databaseService. It is REST service which connects to our MongoDB cluster and serves requests from the front end.
+1. A new service called `databaseService` was created. It is a RESTful service implemented using express which connects to our MongoDB cluster and serves requests from the front end.
+2. All the routes are defined in `services/databaseService/src/router/database.ts`, their functionality defined in `src/requestHandlers/DBRequestHandlers.ts`. Whenever a request is made to this service it connects to the MongoDB cluster and executes CRUD operations on behalf of the frontend and returns a response to the frontend.
+
+## Third party services used:
+
+### Google Sign In
+
+The decision to use Google Sign in was made because.......
+
+### MongoDB
+
+We decided to use a NoSQL database over a relational database because of the ease of use and flexibility to store unstructured data such as a list of friends. We use a hosted cluster offered by MongoDB called [Atlas](https://www.mongodb.com/cloud/atlas).
