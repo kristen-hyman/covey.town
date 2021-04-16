@@ -65,7 +65,7 @@ For deployment to Heroku and Netlify, utilize the steps outlined in the [followi
 
 ## Additional Steps (to integrate with the activity linked above)
 
-## Set Up Github Actions
+### Set Up Github Actions
 - Follow all steps in the activity linked above.
 - In step 2, in the `.github/workflows/main.yml` file, add the following additional steps to the build-and-test section to build and test backend database service:
      ```
@@ -76,7 +76,7 @@ For deployment to Heroku and Netlify, utilize the steps outlined in the [followi
 ![image](https://user-images.githubusercontent.com/33691856/115055060-fc572600-9eae-11eb-926c-9ab23bb8a7ba.png)
 
 
-## Set Up Heroku
+### Set Up Heroku
 - Follow all steps in the activity linked above.
 - After completing this section, use the same steps to create a second Heroku app. Name the second app ‘covey-town-database’.
 - Return to the GitHub Settings -> Secrets pane and add a new secret HEROKU_APP_NAME_DB and set to the name to ‘covey-town-database’.
@@ -92,7 +92,7 @@ For deployment to Heroku and Netlify, utilize the steps outlined in the [followi
 - The fully updated deploy section in the main.yml file is shown below:
 - ![image](https://user-images.githubusercontent.com/33691856/115055115-109b2300-9eaf-11eb-8868-865234416480.png)
 
-## Set Up Netlify
+### Set Up Netlify
 - Follow all steps in the activity linked above. 
 - In Step 4, within the ‘Environment’ section of the settings page, add in the REACT_APP_DATABASE_SERVICE_URL, which is the Heroku server name for the second Heroku app that was created.
 
