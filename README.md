@@ -107,8 +107,8 @@ For deployment to Heroku and Netlify, utilize the steps outlined in the [followi
 - download and install [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#download-and-install)
 - login to your Heroku account where you want to deploy the backend. You must have completed the setup steps described above. To login run `heroku login` in your terminal, in the covey.town directory.
 - run the following commands in the Heroku CLI:
-  - heroku git:remote -r data-service -a covey-town-database
-  - heroku git:remote -r room-service -a covey-town-heroku
+  - `heroku git:remote -r data-service -a covey-town-database`
+  - `heroku git:remote -r room-service -a covey-town-heroku`
 - This binds your local’s git remote to multiple heroku apps. You can use `git remote -v` to verify you got it setup correctly.
 - You can now run these commands to deploy our services on heroku:
   - `git push data-service`
